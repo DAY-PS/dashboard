@@ -4,800 +4,471 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DAY-PS | Dashboard</title>
-    <!-- Lucide Icons for UI -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
             --gt-brown: #5d3a1a;
-            --gt-dark-brown: #3d2611;
+            --gt-dark-brown: #2d1a0b;
             --gt-yellow: #f8e71c;
             --gt-blue: #29abe2;
             --gt-green: #7ed321;
             --gt-red: #ff4d4d;
+            --bg-black: #080808;
         }
 
         * { box-sizing: border-box; }
 
         body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Tahoma', 'Verdana', sans-serif;
-            background-image: url('world.png');
-            background-repeat: repeat;
-            background-size: 250px 202px; 
-            image-rendering: pixelated; 
-            background-attachment: fixed;
-            background-color: #000;
+            margin: 0; padding: 0;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background-color: var(--bg-black);
+            background-image: radial-gradient(circle at top, #1a1a1a 0%, #080808 100%);
             color: white;
             min-height: 100vh;
-            overflow-x: hidden;
-            transition: background-image 0.3s ease;
         }
 
-        /* --- Header / Status Bar --- */
-        .status-bar {
-            background: rgba(0, 0, 0, 0.95);
-            color: var(--gt-green);
-            text-align: center;
-            padding: 8px;
-            font-size: 0.85em;
-            font-weight: bold;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1001;
+        /* Status Bar */
+        .top-nav-status {
+            background: #000;
+            border-bottom: 2px solid #222;
+            padding: 10px 0;
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 40px;
+            font-family: 'Arial Black', sans-serif;
         }
 
-        /* --- Navigation --- */
-        nav {
-            background: linear-gradient(to bottom, var(--gt-dark-brown), #1a1007);
-            padding: 12px;
+        .status-item {
             display: flex;
-            justify-content: center;
             align-items: center;
-            flex-wrap: wrap;
             gap: 10px;
-            border-bottom: 4px solid var(--gt-yellow);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.7);
-            position: sticky;
-            top: 35px;
-            z-index: 1000;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+
+        .status-online { color: var(--gt-green); text-shadow: 0 0 10px rgba(126, 211, 33, 0.4); }
+        .status-offline { color: var(--gt-red); text-shadow: 0 0 10px rgba(255, 77, 77, 0.4); }
+
+        /* Navigation */
+        nav {
+            background: linear-gradient(to bottom, var(--gt-dark-brown), #111);
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            border-bottom: 3px solid var(--gt-yellow);
+            position: sticky; top: 0; z-index: 100;
         }
 
         nav button {
-            background: var(--gt-brown);
-            border: 2px solid var(--gt-yellow);
-            color: white;
-            padding: 8px 16px;
-            font-weight: bold;
-            font-size: 0.9em;
-            text-transform: uppercase;
-            cursor: pointer;
-            border-radius: 6px;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        nav button:hover {
-            transform: translateY(-2px);
-            filter: brightness(1.2);
-            box-shadow: 0 0 10px var(--gt-yellow);
-        }
-
-        #admin-post-btn {
-            background: var(--gt-green);
-            color: black;
-            border-color: white;
-            display: none;
-        }
-
-        .user-profile-container {
-            position: absolute;
-            right: 20px;
-            display: none;
-        }
-
-        .user-profile-btn {
-            background: #222;
-            border: 2px solid var(--gt-green);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.85em;
-            font-weight: bold;
-        }
-
-        .profile-dropdown {
-            position: absolute;
-            top: 45px;
-            right: 0;
             background: #111;
-            border: 3px solid var(--gt-brown);
-            border-radius: 10px;
-            width: 200px;
-            display: none;
-            flex-direction: column;
-            padding: 10px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.8);
-            z-index: 1100;
-        }
-
-        .profile-dropdown.active { display: flex; }
-
-        .setting-item {
-            padding: 8px;
+            border: 1px solid var(--gt-yellow);
+            color: white;
+            padding: 6px 15px;
+            font-size: 12px;
+            font-weight: bold;
             cursor: pointer;
             border-radius: 4px;
-            font-size: 0.85em;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            transition: all 0.2s;
         }
 
-        .setting-item:hover { background: #333; }
-
-        /* --- Layout --- */
-        .container {
-            max-width: 900px;
-            margin: 30px auto;
-            padding: 0 15px;
+        nav button:hover, nav button.active {
+            background: var(--gt-yellow);
+            color: black;
         }
 
-        section {
-            display: none;
+        /* Content Area */
+        .container { max-width: 800px; margin: 20px auto; padding: 0 15px; }
+
+        section { display: none; }
+        section.active { display: block; animation: fadeIn 0.3s ease; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .section-box {
             background: rgba(15, 15, 15, 0.9);
-            border: 5px solid var(--gt-brown);
-            outline: 3px solid black;
-            border-radius: 15px;
+            border: 2px solid var(--gt-brown);
+            border-radius: 12px;
             padding: 25px;
-            backdrop-filter: blur(10px);
-            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            margin-bottom: 50px;
-            min-height: 200px;
+            min-height: 300px;
         }
 
-        @keyframes popIn {
-            0% { opacity: 0; transform: scale(0.9); }
-            100% { opacity: 1; transform: scale(1); }
+        .section-title {
+            font-size: 24px;
+            color: white;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--gt-yellow);
+            padding-left: 15px;
         }
 
-        section.active { display: block; }
-
-        h2 {
-            color: var(--gt-yellow);
-            text-align: center;
-            text-shadow: 2px 2px 0 #000;
-            margin: 0 0 20px 0;
-            font-size: 2em;
-        }
-
-        .item-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .item-row {
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid #444;
-            padding: 12px 20px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        /* Cards */
+        .item-card {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
             cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .item-row:hover {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: var(--gt-yellow);
-            transform: translateX(10px);
-        }
-
-        /* --- Modals --- */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
-            display: none;
-            justify-content: center;
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            z-index: 2000;
+            transition: border-color 0.2s;
+        }
+
+        .item-card:hover { border-color: var(--gt-green); }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: none; justify-content: center; align-items: center; z-index: 1000;
+            backdrop-filter: blur(5px);
         }
 
         .modal {
             background: #111;
-            border: 4px solid #3d2611;
+            border: 2px solid var(--gt-brown);
             border-radius: 15px;
-            width: 95%;
-            max-width: 480px;
-            padding: 25px;
+            width: 90%; max-width: 450px;
+            padding: 30px;
             position: relative;
             max-height: 90vh;
             overflow-y: auto;
-            box-shadow: 0 0 30px rgba(0,0,0,0.9);
         }
 
         .close-btn {
-            position: absolute;
-            top: 15px; right: 15px;
-            background: var(--gt-red);
-            border: 2px solid #000;
-            color: white;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            z-index: 10;
+            position: absolute; top: 15px; right: 15px;
+            background: var(--gt-red); border: none; color: white;
+            width: 30px; height: 30px; border-radius: 5px; cursor: pointer;
+            font-weight: bold; z-index: 10;
         }
 
-        /* --- Item Detail Drop List (As per image) --- */
-        .drops-header {
-            color: var(--gt-green);
-            font-weight: bold;
-            font-size: 0.85em;
-            text-transform: uppercase;
-            margin: 20px 0 10px 0;
-            letter-spacing: 0.5px;
+        .modal-title { color: var(--gt-yellow); text-align: center; font-size: 32px; font-weight: bold; margin-bottom: 10px; }
+        .modal-desc { color: #ccc; text-align: center; font-size: 14px; margin-bottom: 25px; white-space: pre-wrap; }
+
+        .drops-label { color: var(--gt-green); font-weight: bold; font-size: 12px; margin-bottom: 15px; text-transform: uppercase; }
+
+        .drop-row {
+            background: #000; border: 1.5px solid var(--gt-green); border-radius: 10px;
+            padding: 12px; display: flex; align-items: center; gap: 15px; margin-bottom: 10px;
         }
 
-        .drop-item-card {
-            background: #000;
-            border: 2px solid #7ed321;
-            border-radius: 12px;
-            padding: 12px 15px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 8px;
-        }
+        .drop-info b { display: block; font-size: 16px; }
+        .drop-info span { color: #888; font-size: 13px; }
+        .drop-info .chance { color: var(--gt-yellow); }
 
-        .drop-item-icon {
-            width: 45px;
-            height: 45px;
-            background: #222;
-            border-radius: 8px;
-            flex-shrink: 0;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .drop-item-icon img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            image-rendering: pixelated;
-        }
-
-        .drop-item-info {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .drop-name {
-            font-weight: bold;
-            font-size: 1.1em;
-            color: white;
-        }
-
-        .drop-chance-label {
-            font-size: 0.85em;
-            color: #ccc;
-        }
-
-        .drop-chance-value {
-            color: var(--gt-yellow);
-            font-weight: bold;
-        }
-
-        /* --- Admin Controls --- */
-        .admin-action-row {
-            display: flex;
-            gap: 10px;
-            margin-top: 25px;
-        }
+        /* Admin UI */
+        .admin-actions { display: flex; gap: 10px; margin-top: 25px; }
+        .btn { flex: 1; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .btn-edit { background: var(--gt-blue); color: white; }
+        .btn-delete { background: var(--gt-red); color: white; }
+        .btn-save { background: var(--gt-green); color: black; }
 
         .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; color: var(--gt-yellow); font-size: 0.9em; font-weight: bold; }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%;
-            padding: 12px;
-            background: #222;
-            border: 2px solid #444;
-            color: white;
-            border-radius: 8px;
-            font-family: inherit;
+        .form-group label { display: block; margin-bottom: 5px; color: var(--gt-yellow); font-size: 12px; }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%; padding: 10px; background: #222; border: 1px solid #444; color: white; border-radius: 5px;
         }
 
-        .drop-entry-edit {
-            background: #1a1a1a;
-            padding: 12px;
-            border-radius: 10px;
-            border: 1px solid #333;
-            margin-bottom: 10px;
-            position: relative;
+        .drop-input-row { display: flex; gap: 5px; margin-bottom: 5px; }
+        
+        #loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: black; z-index: 2000; display: flex; align-items: center; justify-content: center;
+            color: var(--gt-yellow); font-weight: bold;
         }
-
-        .remove-drop-btn {
-            position: absolute;
-            top: 5px; right: 5px;
-            color: var(--gt-red);
-            font-size: 0.7em;
-            cursor: pointer;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        .add-drop-trigger {
-            background: none;
-            border: 2px dashed #444;
-            color: #888;
-            padding: 10px;
-            width: 100%;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.9em;
-            margin-bottom: 20px;
-            transition: 0.2s;
-        }
-
-        .add-drop-trigger:hover {
-            border-color: var(--gt-green);
-            color: var(--gt-green);
-        }
-
-        .submit-btn {
-            width: 100%;
-            padding: 14px;
-            background: var(--gt-green);
-            border: none;
-            color: black;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1em;
-            text-transform: uppercase;
-        }
-
-        .preview-img-container {
-            width: 100%;
-            height: 120px;
-            background: #222;
-            border: 2px solid #444;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-
-        .preview-img-container img {
-            max-height: 100%;
-            image-rendering: pixelated;
-        }
-
-        .mini-preview {
-            width: 40px;
-            height: 40px;
-            background: #000;
-            border: 1px solid #444;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-
-        .mini-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            image-rendering: pixelated;
-        }
-
     </style>
 </head>
 <body>
 
-<div class="status-bar">
-    <span><i data-lucide="signal" style="width:14px"></i> SERVER STATUS: ONLINE</span>
-    <span><i data-lucide="wallet" style="width:14px"></i> DEPOSIT STATUS: ACTIVE</span>
+<div id="loader">CONNECTING TO DAY-PS CLOUD...</div>
+
+<div class="top-nav-status">
+    <div class="status-item status-online" id="status-server">
+        <i data-lucide="signal"></i> SERVER STATUS: <span id="txt-server">ONLINE</span>
+    </div>
+    <div class="status-item status-online" id="status-deposit">
+        <i data-lucide="wallet"></i> DEPOSIT STATUS: <span id="txt-deposit">ACTIVE</span>
+    </div>
 </div>
 
 <nav id="main-nav">
-    <button onclick="showSection('updates')"><i data-lucide="bell"></i> Updates</button>
-    <button onclick="showSection('customs')"><i data-lucide="sparkles"></i> Customs</button>
-    <button onclick="showSection('events')"><i data-lucide="calendar"></i> Events</button>
-    <button onclick="showSection('rich')"><i data-lucide="gem"></i> Get Rich</button>
-    
-    <button id="admin-post-btn" onclick="openPostModal()"><i data-lucide="plus-square"></i> Post Content</button>
-    <button id="login-nav-btn" onclick="openModal('authModal')" style="background: var(--gt-blue); border-color: white;"><i data-lucide="user"></i> Login</button>
-
-    <div id="user-profile" class="user-profile-container">
-        <div class="user-profile-btn" onclick="toggleProfileDropdown()">
-            <i data-lucide="circle-user"></i>
-            <span id="logged-username">User</span>
-            <i data-lucide="chevron-down" style="width: 14px;"></i>
-        </div>
-        <div id="profile-dropdown" class="profile-dropdown">
-            <div class="setting-item" onclick="logout()" style="color: var(--gt-red);">
-                <span>Logout</span>
-                <i data-lucide="log-out" style="width: 14px;"></i>
-            </div>
-        </div>
-    </div>
+    <button class="active" onclick="showTab('updates', this)">Updates</button>
+    <button onclick="showTab('customs', this)">Customs</button>
+    <button onclick="showTab('events', this)">Events</button>
+    <button onclick="showTab('rich', this)">Get Rich</button>
+    <button id="btn-login" onclick="openLogin()">Login</button>
+    <button id="btn-new" style="display:none; background: var(--gt-green); color:black;" onclick="openEditor()">+ NEW POST</button>
 </nav>
 
 <div class="container">
-    <section id="updates" class="active">
-        <h2>Updates</h2>
-        <div id="updates-list" class="item-list"></div>
-    </section>
-
-    <section id="customs">
-        <h2>Custom Items</h2>
-        <div id="customs-list" class="item-list"></div>
-    </section>
-
-    <section id="events">
-        <h2>Event Rewards</h2>
-        <div id="events-list" class="item-list"></div>
-    </section>
-
-    <section id="rich">
-        <h2>Get Rich Guide</h2>
-        <div id="rich-list" class="item-list"></div>
-    </section>
+    <div class="section-box">
+        <section id="updates" class="active"><div class="section-title">Updates</div><div class="list"></div></section>
+        <section id="customs"><div class="section-title">Custom Items</div><div class="list"></div></section>
+        <section id="events"><div class="section-title">Events</div><div class="list"></div></section>
+        <section id="rich"><div class="section-title">Get Rich Guide</div><div class="list"></div></section>
+    </div>
 </div>
 
-<!-- Item Details Modal -->
-<div id="itemModal" class="modal-overlay" onclick="closeModal('itemModal', event)">
-    <div class="modal" onclick="event.stopPropagation()">
-        <button class="close-btn" onclick="closeModal('itemModal')">X</button>
-        <div id="modal-main-image-container" style="text-align: center; margin-bottom: 15px;"></div>
-        <h2 id="modal-title" style="color: var(--gt-yellow); text-align: center; font-size: 2em; margin-bottom: 5px;">Item Name</h2>
-        <p id="modal-desc" style="color: #ccc; text-align: center; margin-bottom: 20px; font-size: 0.95em;"></p>
+<!-- Details Modal -->
+<div id="modalDetails" class="modal-overlay" onclick="closeM('modalDetails', event)">
+    <div class="modal">
+        <button class="close-btn" onclick="closeM('modalDetails')">X</button>
+        <div class="modal-title" id="det-title">Item Name</div>
+        <div class="modal-desc" id="det-desc">Description</div>
         
-        <div id="drop-area" style="display: none;">
-            <div class="drops-header">Drops when broken:</div>
-            <div id="modal-drop-list"></div>
+        <div id="drops-wrapper">
+            <div class="drops-label">DROPS WHEN BROKEN:</div>
+            <div id="det-drops"></div>
         </div>
 
-        <div id="item-admin-controls" class="admin-action-row" style="display: none;">
-            <button class="submit-btn" style="background: var(--gt-blue); flex: 1;" onclick="editCurrentItem()">EDIT POST</button>
-            <button class="submit-btn" style="background: var(--gt-red); flex: 1;" onclick="deleteCurrentItem()">DELETE</button>
+        <div class="admin-actions" id="admin-tools" style="display:none">
+            <button class="btn btn-edit" id="btn-edit-post">EDIT POST</button>
+            <button class="btn btn-delete" id="btn-delete-post">DELETE</button>
         </div>
     </div>
 </div>
 
-<!-- Post Content Modal -->
-<div id="postModal" class="modal-overlay" onclick="closeModal('postModal', event)">
-    <div class="modal" onclick="event.stopPropagation()">
-        <button class="close-btn" onclick="closeModal('postModal')">X</button>
-        <h2 id="post-modal-header" style="color: var(--gt-yellow);">Add Content</h2>
+<!-- Editor Modal -->
+<div id="modalEditor" class="modal-overlay" onclick="closeM('modalEditor', event)">
+    <div class="modal">
+        <button class="close-btn" onclick="closeM('modalEditor')">X</button>
+        <h2 id="editor-title">Create Post</h2>
         <input type="hidden" id="edit-id">
         
         <div class="form-group">
             <label>Category</label>
-            <select id="post-category">
+            <select id="post-cat">
                 <option value="updates">Updates</option>
-                <option value="customs">Custom Items</option>
+                <option value="customs">Customs</option>
                 <option value="events">Events</option>
-                <option value="rich">Get Rich Guide</option>
+                <option value="rich">Get Rich</option>
             </select>
-        </div>
-
-        <div class="form-group">
-            <label>Item Picture</label>
-            <div class="preview-img-container" id="post-img-preview-container">
-                <i data-lucide="image" style="color:#555"></i>
-            </div>
-            <input type="file" id="post-img-file" accept="image/*" style="display:none" onchange="previewMainImage(this)">
-            <button type="button" class="submit-btn" style="background:#333; color:white; margin-bottom:10px;" onclick="document.getElementById('post-img-file').click()">SELECT PICTURE</button>
-            <input type="hidden" id="post-img-data">
         </div>
         
         <div class="form-group">
             <label>Title</label>
-            <input type="text" id="post-title" placeholder="Item Name">
+            <input type="text" id="post-title">
         </div>
         
         <div class="form-group">
             <label>Description</label>
-            <textarea id="post-desc" rows="2" placeholder="Description text..."></textarea>
+            <textarea id="post-desc" rows="4"></textarea>
         </div>
 
-        <div style="margin-top: 15px;">
-            <label style="color: var(--gt-yellow); font-size: 0.9em; display: block; margin-bottom: 10px;">Item Drops (Optional)</label>
-            <div id="drops-form-container"></div>
-            <button class="add-drop-trigger" onclick="addNewDropEntry()">+ Add New Drop Item</button>
-        </div>
+        <div class="drops-label">Drops (Optional)</div>
+        <div id="editor-drops-list"></div>
+        <button class="btn" style="background:#333; margin-bottom:15px; font-size:10px;" onclick="addDropInput()">+ ADD DROP</button>
 
-        <button class="submit-btn" id="post-submit-btn" onclick="handlePostSubmit()">PUBLISH POST</button>
+        <button class="btn btn-save" onclick="savePost()">PUBLISH TO CLOUD</button>
     </div>
 </div>
 
 <!-- Login Modal -->
-<div id="authModal" class="modal-overlay" onclick="closeModal('authModal', event)">
-    <div class="modal" onclick="event.stopPropagation()">
-        <button class="close-btn" onclick="closeModal('authModal')">X</button>
-        <h2>DAY-PS Login</h2>
-        <div class="form-group">
-            <label>GrowID</label>
-            <input type="text" id="login-growid" placeholder="GrowID">
-        </div>
-        <div class="form-group">
-            <label>Password</label>
-            <input type="password" id="login-password" placeholder="Password">
-        </div>
-        <button class="submit-btn" onclick="handleLogin()">LOG IN</button>
+<div id="modalLogin" class="modal-overlay" onclick="closeM('modalLogin', event)">
+    <div class="modal" style="max-width:300px">
+        <h2 style="text-align:center">Admin Access</h2>
+        <input type="password" id="admin-pass" placeholder="Password" style="width:100%; padding:10px; margin-bottom:10px; background:#222; border:1px solid #444; color:white;">
+        <button class="btn btn-edit" style="width:100%" onclick="doLogin()">Login</button>
     </div>
 </div>
 
-<script>
-    let isAdminSession = false;
-    let selectedItem = null; 
-    let selectedItemCat = null;
-    
-    const categories = {
-        updates: [],
-        customs: [],
-        events: [],
-        rich: []
-    };
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, onSnapshot, collection, setDoc, deleteDoc, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    const admins = {
-        "Owner": "0wn3r201",
-        "Administrator-1": "Adm1n1strat0r10",
-        "Administrator-2": "Adm1n1strat0r20",
-        "Administrator-3": "Adm1n1strat0r30",
-        "Administrator-4": "Adm1n1strat0r40"
-    };
+    let db, auth;
+    let posts = [];
+    let isAdmin = false;
+    let currentAppId = 'dayps-v2';
 
-    function previewMainImage(input) {
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('post-img-preview-container').innerHTML = `<img src="${e.target.result}">`;
-                document.getElementById('post-img-data').value = e.target.result;
-            }
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-
-    function previewDropImage(input, index) {
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const preview = document.getElementById(`drop-preview-${index}`);
-                preview.innerHTML = `<img src="${e.target.result}">`;
-                preview.dataset.img = e.target.result;
-            }
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-
-    function handleLogin() {
-        const id = document.getElementById('login-growid').value.trim();
-        const pass = document.getElementById('login-password').value;
-
-        if (admins[id] && admins[id] === pass) {
-            isAdminSession = true;
-            document.getElementById('logged-username').innerText = id;
-            document.getElementById('login-nav-btn').style.display = 'none';
-            document.getElementById('user-profile').style.display = 'block';
-            document.getElementById('admin-post-btn').style.display = 'flex';
-            closeModal('authModal');
-            populateAllLists(); 
-        } else {
-            alert('Invalid credentials!');
-        }
-    }
-
-    function logout() {
-        isAdminSession = false;
-        location.reload();
-    }
-
-    // Drop Management
-    function addNewDropEntry(name = '', chance = '1', img = '') {
-        const container = document.getElementById('drops-form-container');
-        const index = Date.now() + Math.random();
-        const entry = document.createElement('div');
-        entry.className = 'drop-entry-edit';
-        entry.innerHTML = `
-            <span class="remove-drop-btn" onclick="this.parentElement.remove()">Remove</span>
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <div class="mini-preview" id="drop-preview-${index}" data-img="${img}">
-                    ${img ? `<img src="${img}">` : '<i data-lucide="image" style="width:16px; color:#555;"></i>'}
-                </div>
-                <input type="file" id="drop-file-${index}" style="display:none" onchange="previewDropImage(this, '${index}')">
-                <button type="button" onclick="document.getElementById('drop-file-${index}').click()" style="padding:5px; font-size:0.7em; background:#444; border:none; color:white; border-radius:4px; cursor:pointer;">UPLOAD ICON</button>
-                <input type="text" class="drop-name-input" placeholder="Item Name" value="${name}" style="flex: 2;">
-                <input type="text" class="drop-chance-input" placeholder="Rate %" value="${chance}" style="flex: 1;">
-            </div>
-        `;
-        container.appendChild(entry);
+    // --- Boot Logic ---
+    async function init() {
         lucide.createIcons();
-    }
-
-    function handlePostSubmit() {
-        const editId = document.getElementById('edit-id').value;
-        const category = document.getElementById('post-category').value;
-        const title = document.getElementById('post-title').value.trim();
-        const desc = document.getElementById('post-desc').value.trim();
-        const mainImg = document.getElementById('post-img-data').value;
         
-        const drops = [];
-        document.querySelectorAll('.drop-entry-edit').forEach(el => {
-            const n = el.querySelector('.drop-name-input').value.trim();
-            const c = el.querySelector('.drop-chance-input').value.trim();
-            const i = el.querySelector('.mini-preview').dataset.img || '';
-            if (n) drops.push({ name: n, chance: c, img: i });
-        });
+        try {
+            const config = JSON.parse(__firebase_config);
+            const app = initializeApp(config);
+            auth = getAuth(app);
+            db = getFirestore(app);
+            currentAppId = typeof __app_id !== 'undefined' ? __app_id : 'dayps-v2';
 
-        if (!title) return alert('Title required');
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    document.getElementById('loader').style.display = 'none';
+                    setupListeners(currentAppId);
+                }
+            });
 
-        const itemData = {
-            id: editId ? parseInt(editId) : Date.now(),
-            name: title,
-            desc: desc,
-            img: mainImg,
-            drops: drops
-        };
-
-        if (editId) {
-            const index = categories[selectedItemCat].findIndex(i => i.id == editId);
-            if (selectedItemCat === category) {
-                categories[selectedItemCat][index] = itemData;
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
             } else {
-                categories[selectedItemCat].splice(index, 1);
-                categories[category].unshift(itemData);
+                await signInAnonymously(auth);
             }
-        } else {
-            categories[category].unshift(itemData);
+        } catch(e) {
+            console.error("Init Error:", e);
+            document.getElementById('loader').innerText = "CONNECTION FAILED. REFRESH PAGE.";
         }
-
-        renderCategory(category);
-        if (editId && selectedItemCat !== category) renderCategory(selectedItemCat);
-        closeModal('postModal');
-        closeModal('itemModal');
     }
 
-    function openPostModal(editData = null) {
-        const container = document.getElementById('drops-form-container');
-        container.innerHTML = '';
-        document.getElementById('post-img-preview-container').innerHTML = '<i data-lucide="image" style="color:#555"></i>';
-        document.getElementById('post-img-data').value = '';
+    function setupListeners(appId) {
+        // Real-time Posts Listener
+        const postsRef = collection(db, 'artifacts', appId, 'public', 'data', 'posts');
+        onSnapshot(postsRef, (snap) => {
+            posts = snap.docs.map(d => ({id: d.id, ...d.data()}));
+            renderPosts();
+        }, (err) => console.error("Snapshot error:", err));
+    }
+
+    function renderPosts() {
+        const cats = ['updates', 'customs', 'events', 'rich'];
+        cats.forEach(c => {
+            const list = document.querySelector(`#${c} .list`);
+            if (!list) return;
+            list.innerHTML = '';
+            
+            const filtered = posts.filter(p => p.cat === c);
+            if (filtered.length === 0) {
+                list.innerHTML = '<div style="text-align:center; opacity:0.2; padding:40px;">No entries yet</div>';
+            }
+
+            filtered.forEach(p => {
+                const div = document.createElement('div');
+                div.className = 'item-card';
+                div.innerHTML = `<span>${p.title}</span><i data-lucide="chevron-right" style="width:16px"></i>`;
+                div.onclick = () => showDetails(p);
+                list.appendChild(div);
+            });
+        });
         lucide.createIcons();
-        
-        if (editData) {
-            document.getElementById('post-modal-header').innerText = "Edit Content";
-            document.getElementById('edit-id').value = editData.id;
-            document.getElementById('post-category').value = editData.cat;
-            document.getElementById('post-title').value = editData.name;
-            document.getElementById('post-desc').value = editData.desc;
-            if(editData.img) {
-                document.getElementById('post-img-preview-container').innerHTML = `<img src="${editData.img}">`;
-                document.getElementById('post-img-data').value = editData.img;
-            }
-            editData.drops.forEach(d => addNewDropEntry(d.name, d.chance, d.img));
-        } else {
-            document.getElementById('post-modal-header').innerText = "Add Content";
-            document.getElementById('edit-id').value = "";
-            document.getElementById('post-title').value = '';
-            document.getElementById('post-desc').value = '';
-        }
-        openModal('postModal');
     }
 
-    function showItemDetails(item, category) {
-        selectedItem = item;
-        selectedItemCat = category;
+    window.showDetails = (p) => {
+        document.getElementById('det-title').innerText = p.title;
+        document.getElementById('det-desc').innerText = p.desc;
         
-        document.getElementById('modal-title').innerText = item.name;
-        document.getElementById('modal-desc').innerText = item.desc;
+        const dropsContainer = document.getElementById('det-drops');
+        const dropsWrapper = document.getElementById('drops-wrapper');
+        dropsContainer.innerHTML = '';
         
-        const mainImgCont = document.getElementById('modal-main-image-container');
-        if(item.img) {
-            mainImgCont.innerHTML = `<img src="${item.img}" style="max-height:180px; image-rendering:pixelated; border-radius:10px;">`;
-            mainImgCont.style.display = 'block';
-        } else {
-            mainImgCont.style.display = 'none';
-        }
-        
-        const dropArea = document.getElementById('drop-area');
-        const modalDropList = document.getElementById('modal-drop-list');
-        modalDropList.innerHTML = '';
-
-        if (item.drops && item.drops.length > 0) {
-            dropArea.style.display = 'block';
-            item.drops.forEach(drop => {
-                const card = document.createElement('div');
-                card.className = 'drop-item-card';
-                card.innerHTML = `
-                    <div class="drop-item-icon">
-                        ${drop.img ? `<img src="${drop.img}">` : ''}
-                    </div>
-                    <div class="drop-item-info">
-                        <div class="drop-name">${drop.name}</div>
-                        <div class="drop-chance-label">Chance: <span class="drop-chance-value">${drop.chance}%</span></div>
+        if (p.drops && p.drops.length > 0) {
+            dropsWrapper.style.display = 'block';
+            p.drops.forEach(d => {
+                const div = document.createElement('div');
+                div.className = 'drop-row';
+                div.innerHTML = `
+                    <div class="drop-info">
+                        <b>${d.name}</b>
+                        <span>Chance: <span class="chance">${d.chance}%</span></span>
                     </div>
                 `;
-                modalDropList.appendChild(card);
+                dropsContainer.appendChild(div);
             });
         } else {
-            dropArea.style.display = 'none';
+            dropsWrapper.style.display = 'none';
         }
-
-        document.getElementById('item-admin-controls').style.display = isAdminSession ? 'flex' : 'none';
-        openModal('itemModal');
-    }
-
-    function editCurrentItem() {
-        openPostModal({...selectedItem, cat: selectedItemCat});
-    }
-
-    function deleteCurrentItem() {
-        if (!confirm("Delete post?")) return;
-        categories[selectedItemCat] = categories[selectedItemCat].filter(i => i.id !== selectedItem.id);
-        renderCategory(selectedItemCat);
-        closeModal('itemModal');
-    }
-
-    function renderCategory(cat) {
-        const container = document.getElementById(`${cat}-list`);
-        container.innerHTML = categories[cat].length ? '' : '<div style="color:#444; text-align:center; padding:20px;">No entries yet</div>';
         
-        categories[cat].forEach(item => {
-            const row = document.createElement('div');
-            row.className = 'item-row';
-            row.onclick = () => showItemDetails(item, cat);
-            row.innerHTML = `
-                <div style="display:flex; align-items:center; gap:12px;">
-                    <div style="width:30px; height:30px; background:#222; border-radius:4px; overflow:hidden; display:flex; align-items:center; justify-content:center;">
-                        ${item.img ? `<img src="${item.img}" style="width:100%; height:100%; object-fit:contain; image-rendering:pixelated;">` : ''}
-                    </div>
-                    <span style="font-weight:bold;">${item.name}</span>
-                </div>
-                <i data-lucide="chevron-right" style="width:18px;"></i>
-            `;
-            container.appendChild(row);
-        });
+        const tools = document.getElementById('admin-tools');
+        tools.style.display = isAdmin ? 'flex' : 'none';
+        
+        document.getElementById('btn-edit-post').onclick = () => { closeM('modalDetails'); openEditor(p); };
+        document.getElementById('btn-delete-post').onclick = () => deletePost(p.id);
+
+        document.getElementById('modalDetails').style.display = 'flex';
         lucide.createIcons();
-    }
+    };
 
-    function showSection(id) {
+    window.openEditor = (data = null) => {
+        document.getElementById('editor-title').innerText = data ? "Edit Post" : "Create Post";
+        document.getElementById('edit-id').value = data ? data.id : "";
+        document.getElementById('post-cat').value = data ? data.cat : "updates";
+        document.getElementById('post-title').value = data ? data.title : "";
+        document.getElementById('post-desc').value = data ? data.desc : "";
+        document.getElementById('editor-drops-list').innerHTML = "";
+        
+        if (data && data.drops) {
+            data.drops.forEach(d => addDropInput(d.name, d.chance));
+        }
+        
+        document.getElementById('modalEditor').style.display = 'flex';
+    };
+
+    window.addDropInput = (name = "", chance = "") => {
+        const div = document.createElement('div');
+        div.className = 'drop-input-row';
+        div.innerHTML = `
+            <input type="text" placeholder="Item Name" value="${name}" class="d-name" style="flex:2">
+            <input type="text" placeholder="%" value="${chance}" class="d-chance" style="flex:1">
+            <button onclick="this.parentElement.remove()" style="background:var(--gt-red); border:none; color:white; padding:5px; border-radius:4px; cursor:pointer">X</button>
+        `;
+        document.getElementById('editor-drops-list').appendChild(div);
+    };
+
+    window.savePost = async () => {
+        const id = document.getElementById('edit-id').value || Date.now().toString();
+        const cat = document.getElementById('post-cat').value;
+        const title = document.getElementById('post-title').value;
+        const desc = document.getElementById('post-desc').value;
+        
+        if (!title) return alert("Title required");
+
+        const drops = [];
+        document.querySelectorAll('.drop-input-row').forEach(row => {
+            const n = row.querySelector('.d-name').value;
+            const c = row.querySelector('.d-chance').value;
+            if (n) drops.push({ name: n, chance: c });
+        });
+
+        try {
+            await setDoc(doc(db, 'artifacts', currentAppId, 'public', 'data', 'posts', id), {
+                cat, title, desc, drops, updatedAt: Date.now()
+            });
+            closeM('modalEditor');
+        } catch (e) {
+            alert("Error saving: " + e.message);
+        }
+    };
+
+    window.deletePost = async (id) => {
+        if (!confirm("Are you sure you want to delete this post forever?")) return;
+        try {
+            await deleteDoc(doc(db, 'artifacts', currentAppId, 'public', 'data', 'posts', id));
+            closeM('modalDetails');
+        } catch (e) {
+            alert("Error deleting: " + e.message);
+        }
+    };
+
+    window.showTab = (id, btn) => {
         document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        renderCategory(id);
-    }
+        btn.classList.add('active');
+    };
 
-    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-    function closeModal(id, event) { if (!event || event.target === document.getElementById(id)) document.getElementById(id).style.display = 'none'; }
-    function toggleProfileDropdown() { document.getElementById('profile-dropdown').classList.toggle('active'); }
+    window.openLogin = () => document.getElementById('modalLogin').style.display = 'flex';
+    
+    window.doLogin = () => {
+        const p = document.getElementById('admin-pass').value;
+        if (p === "Adm1n123") {
+            isAdmin = true;
+            document.getElementById('btn-login').style.display = 'none';
+            document.getElementById('btn-new').style.display = 'block';
+            closeM('modalLogin');
+            renderPosts();
+        } else {
+            alert("Wrong password");
+        }
+    };
 
-    function populateAllLists() { Object.keys(categories).forEach(cat => renderCategory(cat)); }
-    window.onload = () => { populateAllLists(); lucide.createIcons(); };
+    window.closeM = (id, e) => {
+        if (!e || e.target.classList.contains('modal-overlay')) {
+            document.getElementById(id).style.display = 'none';
+        }
+    };
+
+    init();
 </script>
 
 </body>
