@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAY-PS | Dashboard</title>
+    <!-- Lucide Icons for UI -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --gt-brown: #5d3a1a;
+            --gt-dark-brown: #3d2611;
+            --gt-yellow: #f8e71c;
+            --gt-blue: #29abe2;
+            --gt-green: #7ed321;
+            --gt-red: #ff4d4d;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Tahoma', 'Verdana', sans-serif;
+            background-image: url('world.png');
+            background-repeat: repeat;
+            background-size: 250px 202px; 
+            image-rendering: pixelated; 
+            background-attachment: fixed;
+            background-color: #000;
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background-image 0.3s ease;
+        }
+
+        /* --- Header / Status Bar --- */
+        .status-bar {
+            background: rgba(0, 0, 0, 0.95);
+            color: var(--gt-green);
+            text-align: center;
+            padding: 8px;
+            font-size: 0.85em;
+            font-weight: bold;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1001;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        /* --- Navigation --- */
+        nav {
+            background: linear-gradient(to bottom, var(--gt-dark-brown), #1a1007);
+            padding: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            border-bottom: 4px solid var(--gt-yellow);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.7);
+            position: sticky;
+            top: 35px;
+            z-index: 1000;
+        }
+
+        nav button {
+            background: var(--gt-brown);
+            border: 2px solid var(--gt-yellow);
+            color: white;
+            padding: 8px 16px;
+            font-weight: bold;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        nav button:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.2);
+            box-shadow: 0 0 10px var(--gt-yellow);
+        }
+
+        #admin-post-btn {
+            background: var(--gt-green);
+            color: black;
+            border-color: white;
+            display: none;
+        }
+
+        .user-profile-container {
+            position: absolute;
+            right: 20px;
+            display: none;
+        }
+
+        .user-profile-btn {
+            background: #222;
+            border: 2px solid var(--gt-green);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 45px;
+            right: 0;
+            background: #111;
+            border: 3px solid var(--gt-brown);
+            border-radius: 10px;
+            width: 200px;
+            display: none;
+            flex-direction: column;
+            padding: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.8);
+            z-index: 1100;
+        }
+
+        .profile-dropdown.active { display: flex; }
+
+        .setting-item {
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 0.85em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .setting-item:hover { background: #333; }
+
+        /* --- Layout --- */
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 15px;
+        }
+
+        section {
+            display: none;
+            background: rgba(15, 15, 15, 0.9);
+            border: 5px solid var(--gt-brown);
+            outline: 3px solid black;
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin-bottom: 50px;
+            min-height: 200px;
+        }
+
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        section.active { display: block; }
+
+        h2 {
+            color: var(--gt-yellow);
+            text-align: center;
+            text-shadow: 2px 2px 0 #000;
+            margin: 0 0 20px 0;
+            font-size: 2em;
+        }
+
+        .item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .item-row {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #444;
+            padding: 12px 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .item-row:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--gt-yellow);
+            transform: translateX(10px);
+        }
+
+        /* --- Modals --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal {
+            background: #111;
+            border: 4px solid #3d2611;
+            border-radius: 15px;
+            width: 95%;
+            max-width: 480px;
+            padding: 25px;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 0 30px rgba(0,0,0,0.9);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px; right: 15px;
+            background: var(--gt-red);
+            border: 2px solid #000;
+            color: white;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            z-index: 10;
+        }
+
+        /* --- Item Detail Drop List (As per image) --- */
+        .drops-header {
+            color: var(--gt-green);
+            font-weight: bold;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            margin: 20px 0 10px 0;
+            letter-spacing: 0.5px;
+        }
+
+        .drop-item-card {
+            background: #000;
+            border: 2px solid #7ed321;
+            border-radius: 12px;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 8px;
+        }
+
+        .drop-item-icon {
+            width: 45px;
+            height: 45px;
+            background: #222;
+            border-radius: 8px;
+            flex-shrink: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .drop-item-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            image-rendering: pixelated;
+        }
+
+        .drop-item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .drop-name {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: white;
+        }
+
+        .drop-chance-label {
+            font-size: 0.85em;
+            color: #ccc;
+        }
+
+        .drop-chance-value {
+            color: var(--gt-yellow);
+            font-weight: bold;
+        }
+
+        /* --- Admin Controls --- */
+        .admin-action-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; color: var(--gt-yellow); font-size: 0.9em; font-weight: bold; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            background: #222;
+            border: 2px solid #444;
+            color: white;
+            border-radius: 8px;
+            font-family: inherit;
+        }
+
+        .drop-entry-edit {
+            background: #1a1a1a;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #333;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .remove-drop-btn {
+            position: absolute;
+            top: 5px; right: 5px;
+            color: var(--gt-red);
+            font-size: 0.7em;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .add-drop-trigger {
+            background: none;
+            border: 2px dashed #444;
+            color: #888;
+            padding: 10px;
+            width: 100%;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+            transition: 0.2s;
+        }
+
+        .add-drop-trigger:hover {
+            border-color: var(--gt-green);
+            color: var(--gt-green);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--gt-green);
+            border: none;
+            color: black;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            text-transform: uppercase;
+        }
+
+        .preview-img-container {
+            width: 100%;
+            height: 120px;
+            background: #222;
+            border: 2px solid #444;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .preview-img-container img {
+            max-height: 100%;
+            image-rendering: pixelated;
+        }
+
+        .mini-preview {
+            width: 40px;
+            height: 40px;
+            background: #000;
+            border: 1px solid #444;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .mini-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            image-rendering: pixelated;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="status-bar">
+    <span><i data-lucide="signal" style="width:14px"></i> SERVER STATUS: ONLINE</span>
+    <span><i data-lucide="wallet" style="width:14px"></i> DEPOSIT STATUS: ACTIVE</span>
+</div>
+
+<nav id="main-nav">
+    <button onclick="showSection('updates')"><i data-lucide="bell"></i> Updates</button>
+    <button onclick="showSection('customs')"><i data-lucide="sparkles"></i> Customs</button>
+    <button onclick="showSection('events')"><i data-lucide="calendar"></i> Events</button>
+    <button onclick="showSection('rich')"><i data-lucide="gem"></i> Get Rich</button>
+    
+    <button id="admin-post-btn" onclick="openPostModal()"><i data-lucide="plus-square"></i> Post Content</button>
+    <button id="login-nav-btn" onclick="openModal('authModal')" style="background: var(--gt-blue); border-color: white;"><i data-lucide="user"></i> Login</button>
+
+    <div id="user-profile" class="user-profile-container">
+        <div class="user-profile-btn" onclick="toggleProfileDropdown()">
+            <i data-lucide="circle-user"></i>
+            <span id="logged-username">User</span>
+            <i data-lucide="chevron-down" style="width: 14px;"></i>
+        </div>
+        <div id="profile-dropdown" class="profile-dropdown">
+            <div class="setting-item" onclick="logout()" style="color: var(--gt-red);">
+                <span>Logout</span>
+                <i data-lucide="log-out" style="width: 14px;"></i>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <section id="updates" class="active">
+        <h2>Updates</h2>
+        <div id="updates-list" class="item-list"></div>
+    </section>
+
+    <section id="customs">
+        <h2>Custom Items</h2>
+        <div id="customs-list" class="item-list"></div>
+    </section>
+
+    <section id="events">
+        <h2>Event Rewards</h2>
+        <div id="events-list" class="item-list"></div>
+    </section>
+
+    <section id="rich">
+        <h2>Get Rich Guide</h2>
+        <div id="rich-list" class="item-list"></div>
+    </section>
+</div>
+
+<!-- Item Details Modal -->
+<div id="itemModal" class="modal-overlay" onclick="closeModal('itemModal', event)">
+    <div class="modal" onclick="event.stopPropagation()">
+        <button class="close-btn" onclick="closeModal('itemModal')">X</button>
+        <div id="modal-main-image-container" style="text-align: center; margin-bottom: 15px;"></div>
+        <h2 id="modal-title" style="color: var(--gt-yellow); text-align: center; font-size: 2em; margin-bottom: 5px;">Item Name</h2>
+        <p id="modal-desc" style="color: #ccc; text-align: center; margin-bottom: 20px; font-size: 0.95em;"></p>
+        
+        <div id="drop-area" style="display: none;">
+            <div class="drops-header">Drops when broken:</div>
+            <div id="modal-drop-list"></div>
+        </div>
+
+        <div id="item-admin-controls" class="admin-action-row" style="display: none;">
+            <button class="submit-btn" style="background: var(--gt-blue); flex: 1;" onclick="editCurrentItem()">EDIT POST</button>
+            <button class="submit-btn" style="background: var(--gt-red); flex: 1;" onclick="deleteCurrentItem()">DELETE</button>
+        </div>
+    </div>
+</div>
+
+<!-- Post Content Modal -->
+<div id="postModal" class="modal-overlay" onclick="closeModal('postModal', event)">
+    <div class="modal" onclick="event.stopPropagation()">
+        <button class="close-btn" onclick="closeModal('postModal')">X</button>
+        <h2 id="post-modal-header" style="color: var(--gt-yellow);">Add Content</h2>
+        <input type="hidden" id="edit-id">
+        
+        <div class="form-group">
+            <label>Category</label>
+            <select id="post-category">
+                <option value="updates">Updates</option>
+                <option value="customs">Custom Items</option>
+                <option value="events">Events</option>
+                <option value="rich">Get Rich Guide</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Item Picture</label>
+            <div class="preview-img-container" id="post-img-preview-container">
+                <i data-lucide="image" style="color:#555"></i>
+            </div>
+            <input type="file" id="post-img-file" accept="image/*" style="display:none" onchange="previewMainImage(this)">
+            <button type="button" class="submit-btn" style="background:#333; color:white; margin-bottom:10px;" onclick="document.getElementById('post-img-file').click()">SELECT PICTURE</button>
+            <input type="hidden" id="post-img-data">
+        </div>
+        
+        <div class="form-group">
+            <label>Title</label>
+            <input type="text" id="post-title" placeholder="Item Name">
+        </div>
+        
+        <div class="form-group">
+            <label>Description</label>
+            <textarea id="post-desc" rows="2" placeholder="Description text..."></textarea>
+        </div>
+
+        <div style="margin-top: 15px;">
+            <label style="color: var(--gt-yellow); font-size: 0.9em; display: block; margin-bottom: 10px;">Item Drops (Optional)</label>
+            <div id="drops-form-container"></div>
+            <button class="add-drop-trigger" onclick="addNewDropEntry()">+ Add New Drop Item</button>
+        </div>
+
+        <button class="submit-btn" id="post-submit-btn" onclick="handlePostSubmit()">PUBLISH POST</button>
+    </div>
+</div>
+
+<!-- Login Modal -->
+<div id="authModal" class="modal-overlay" onclick="closeModal('authModal', event)">
+    <div class="modal" onclick="event.stopPropagation()">
+        <button class="close-btn" onclick="closeModal('authModal')">X</button>
+        <h2>DAY-PS Login</h2>
+        <div class="form-group">
+            <label>GrowID</label>
+            <input type="text" id="login-growid" placeholder="GrowID">
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="login-password" placeholder="Password">
+        </div>
+        <button class="submit-btn" onclick="handleLogin()">LOG IN</button>
+    </div>
+</div>
+
+<script>
+    let isAdminSession = false;
+    let selectedItem = null; 
+    let selectedItemCat = null;
+    
+    const categories = {
+        updates: [],
+        customs: [],
+        events: [],
+        rich: []
+    };
+
+    const admins = {
+        "Owner": "0wn3r201",
+        "Administrator-1": "Adm1n1strat0r10",
+        "Administrator-2": "Adm1n1strat0r20",
+        "Administrator-3": "Adm1n1strat0r30",
+        "Administrator-4": "Adm1n1strat0r40"
+    };
+
+    function previewMainImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('post-img-preview-container').innerHTML = `<img src="${e.target.result}">`;
+                document.getElementById('post-img-data').value = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function previewDropImage(input, index) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById(`drop-preview-${index}`);
+                preview.innerHTML = `<img src="${e.target.result}">`;
+                preview.dataset.img = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function handleLogin() {
+        const id = document.getElementById('login-growid').value.trim();
+        const pass = document.getElementById('login-password').value;
+
+        if (admins[id] && admins[id] === pass) {
+            isAdminSession = true;
+            document.getElementById('logged-username').innerText = id;
+            document.getElementById('login-nav-btn').style.display = 'none';
+            document.getElementById('user-profile').style.display = 'block';
+            document.getElementById('admin-post-btn').style.display = 'flex';
+            closeModal('authModal');
+            populateAllLists(); 
+        } else {
+            alert('Invalid credentials!');
+        }
+    }
+
+    function logout() {
+        isAdminSession = false;
+        location.reload();
+    }
+
+    // Drop Management
+    function addNewDropEntry(name = '', chance = '1', img = '') {
+        const container = document.getElementById('drops-form-container');
+        const index = Date.now() + Math.random();
+        const entry = document.createElement('div');
+        entry.className = 'drop-entry-edit';
+        entry.innerHTML = `
+            <span class="remove-drop-btn" onclick="this.parentElement.remove()">Remove</span>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <div class="mini-preview" id="drop-preview-${index}" data-img="${img}">
+                    ${img ? `<img src="${img}">` : '<i data-lucide="image" style="width:16px; color:#555;"></i>'}
+                </div>
+                <input type="file" id="drop-file-${index}" style="display:none" onchange="previewDropImage(this, '${index}')">
+                <button type="button" onclick="document.getElementById('drop-file-${index}').click()" style="padding:5px; font-size:0.7em; background:#444; border:none; color:white; border-radius:4px; cursor:pointer;">UPLOAD ICON</button>
+                <input type="text" class="drop-name-input" placeholder="Item Name" value="${name}" style="flex: 2;">
+                <input type="text" class="drop-chance-input" placeholder="Rate %" value="${chance}" style="flex: 1;">
+            </div>
+        `;
+        container.appendChild(entry);
+        lucide.createIcons();
+    }
+
+    function handlePostSubmit() {
+        const editId = document.getElementById('edit-id').value;
+        const category = document.getElementById('post-category').value;
+        const title = document.getElementById('post-title').value.trim();
+        const desc = document.getElementById('post-desc').value.trim();
+        const mainImg = document.getElementById('post-img-data').value;
+        
+        const drops = [];
+        document.querySelectorAll('.drop-entry-edit').forEach(el => {
+            const n = el.querySelector('.drop-name-input').value.trim();
+            const c = el.querySelector('.drop-chance-input').value.trim();
+            const i = el.querySelector('.mini-preview').dataset.img || '';
+            if (n) drops.push({ name: n, chance: c, img: i });
+        });
+
+        if (!title) return alert('Title required');
+
+        const itemData = {
+            id: editId ? parseInt(editId) : Date.now(),
+            name: title,
+            desc: desc,
+            img: mainImg,
+            drops: drops
+        };
+
+        if (editId) {
+            const index = categories[selectedItemCat].findIndex(i => i.id == editId);
+            if (selectedItemCat === category) {
+                categories[selectedItemCat][index] = itemData;
+            } else {
+                categories[selectedItemCat].splice(index, 1);
+                categories[category].unshift(itemData);
+            }
+        } else {
+            categories[category].unshift(itemData);
+        }
+
+        renderCategory(category);
+        if (editId && selectedItemCat !== category) renderCategory(selectedItemCat);
+        closeModal('postModal');
+        closeModal('itemModal');
+    }
+
+    function openPostModal(editData = null) {
+        const container = document.getElementById('drops-form-container');
+        container.innerHTML = '';
+        document.getElementById('post-img-preview-container').innerHTML = '<i data-lucide="image" style="color:#555"></i>';
+        document.getElementById('post-img-data').value = '';
+        lucide.createIcons();
+        
+        if (editData) {
+            document.getElementById('post-modal-header').innerText = "Edit Content";
+            document.getElementById('edit-id').value = editData.id;
+            document.getElementById('post-category').value = editData.cat;
+            document.getElementById('post-title').value = editData.name;
+            document.getElementById('post-desc').value = editData.desc;
+            if(editData.img) {
+                document.getElementById('post-img-preview-container').innerHTML = `<img src="${editData.img}">`;
+                document.getElementById('post-img-data').value = editData.img;
+            }
+            editData.drops.forEach(d => addNewDropEntry(d.name, d.chance, d.img));
+        } else {
+            document.getElementById('post-modal-header').innerText = "Add Content";
+            document.getElementById('edit-id').value = "";
+            document.getElementById('post-title').value = '';
+            document.getElementById('post-desc').value = '';
+        }
+        openModal('postModal');
+    }
+
+    function showItemDetails(item, category) {
+        selectedItem = item;
+        selectedItemCat = category;
+        
+        document.getElementById('modal-title').innerText = item.name;
+        document.getElementById('modal-desc').innerText = item.desc;
+        
+        const mainImgCont = document.getElementById('modal-main-image-container');
+        if(item.img) {
+            mainImgCont.innerHTML = `<img src="${item.img}" style="max-height:180px; image-rendering:pixelated; border-radius:10px;">`;
+            mainImgCont.style.display = 'block';
+        } else {
+            mainImgCont.style.display = 'none';
+        }
+        
+        const dropArea = document.getElementById('drop-area');
+        const modalDropList = document.getElementById('modal-drop-list');
+        modalDropList.innerHTML = '';
+
+        if (item.drops && item.drops.length > 0) {
+            dropArea.style.display = 'block';
+            item.drops.forEach(drop => {
+                const card = document.createElement('div');
+                card.className = 'drop-item-card';
+                card.innerHTML = `
+                    <div class="drop-item-icon">
+                        ${drop.img ? `<img src="${drop.img}">` : ''}
+                    </div>
+                    <div class="drop-item-info">
+                        <div class="drop-name">${drop.name}</div>
+                        <div class="drop-chance-label">Chance: <span class="drop-chance-value">${drop.chance}%</span></div>
+                    </div>
+                `;
+                modalDropList.appendChild(card);
+            });
+        } else {
+            dropArea.style.display = 'none';
+        }
+
+        document.getElementById('item-admin-controls').style.display = isAdminSession ? 'flex' : 'none';
+        openModal('itemModal');
+    }
+
+    function editCurrentItem() {
+        openPostModal({...selectedItem, cat: selectedItemCat});
+    }
+
+    function deleteCurrentItem() {
+        if (!confirm("Delete post?")) return;
+        categories[selectedItemCat] = categories[selectedItemCat].filter(i => i.id !== selectedItem.id);
+        renderCategory(selectedItemCat);
+        closeModal('itemModal');
+    }
+
+    function renderCategory(cat) {
+        const container = document.getElementById(`${cat}-list`);
+        container.innerHTML = categories[cat].length ? '' : '<div style="color:#444; text-align:center; padding:20px;">No entries yet</div>';
+        
+        categories[cat].forEach(item => {
+            const row = document.createElement('div');
+            row.className = 'item-row';
+            row.onclick = () => showItemDetails(item, cat);
+            row.innerHTML = `
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div style="width:30px; height:30px; background:#222; border-radius:4px; overflow:hidden; display:flex; align-items:center; justify-content:center;">
+                        ${item.img ? `<img src="${item.img}" style="width:100%; height:100%; object-fit:contain; image-rendering:pixelated;">` : ''}
+                    </div>
+                    <span style="font-weight:bold;">${item.name}</span>
+                </div>
+                <i data-lucide="chevron-right" style="width:18px;"></i>
+            `;
+            container.appendChild(row);
+        });
+        lucide.createIcons();
+    }
+
+    function showSection(id) {
+        document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        renderCategory(id);
+    }
+
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id, event) { if (!event || event.target === document.getElementById(id)) document.getElementById(id).style.display = 'none'; }
+    function toggleProfileDropdown() { document.getElementById('profile-dropdown').classList.toggle('active'); }
+
+    function populateAllLists() { Object.keys(categories).forEach(cat => renderCategory(cat)); }
+    window.onload = () => { populateAllLists(); lucide.createIcons(); };
+</script>
+
+</body>
+</html>
