@@ -25,170 +25,188 @@
             background-image: radial-gradient(circle at top, #1a1a1a 0%, #080808 100%);
             color: white;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         /* Status Bar */
         .top-nav-status {
             background: #000;
             border-bottom: 2px solid #222;
-            padding: 10px 0;
+            padding: 12px 0;
             display: flex;
             justify-content: center;
-            gap: 40px;
+            gap: 30px;
             font-family: 'Arial Black', sans-serif;
+            flex-wrap: wrap;
         }
 
         .status-item {
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 14px;
+            gap: 8px;
+            font-size: 13px;
             letter-spacing: 1px;
+            font-weight: 900;
         }
 
-        .status-online { color: var(--gt-green); text-shadow: 0 0 10px rgba(126, 211, 33, 0.4); }
-        .status-offline { color: var(--gt-red); text-shadow: 0 0 10px rgba(255, 77, 77, 0.4); }
+        .status-online { color: var(--gt-green); text-shadow: 0 0 8px rgba(126, 211, 33, 0.5); }
 
         /* Navigation */
         nav {
             background: linear-gradient(to bottom, var(--gt-dark-brown), #111);
-            padding: 15px;
+            padding: 12px;
             display: flex;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
             border-bottom: 3px solid var(--gt-yellow);
             position: sticky; top: 0; z-index: 100;
+            flex-wrap: wrap;
         }
 
         nav button {
             background: #111;
             border: 1px solid var(--gt-yellow);
             color: white;
-            padding: 6px 15px;
-            font-size: 12px;
+            padding: 8px 14px;
+            font-size: 11px;
             font-weight: bold;
             cursor: pointer;
             border-radius: 4px;
             transition: all 0.2s;
+            text-transform: uppercase;
         }
 
         nav button:hover, nav button.active {
             background: var(--gt-yellow);
             color: black;
+            box-shadow: 0 0 10px rgba(248, 231, 28, 0.3);
         }
 
         /* Content Area */
-        .container { max-width: 800px; margin: 20px auto; padding: 0 15px; }
+        .container { max-width: 700px; margin: 25px auto; padding: 0 15px; }
 
         section { display: none; }
-        section.active { display: block; animation: fadeIn 0.3s ease; }
+        section.active { display: block; animation: fadeIn 0.4s ease; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .section-box {
-            background: rgba(15, 15, 15, 0.9);
-            border: 2px solid var(--gt-brown);
+            background: rgba(15, 15, 15, 0.95);
+            border: 1px solid var(--gt-brown);
             border-radius: 12px;
-            padding: 25px;
-            min-height: 300px;
+            padding: 20px;
+            min-height: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
         .section-title {
-            font-size: 24px;
-            color: white;
+            font-size: 20px;
+            color: var(--gt-yellow);
             margin-bottom: 20px;
-            border-left: 4px solid var(--gt-yellow);
-            padding-left: 15px;
+            border-left: 3px solid var(--gt-yellow);
+            padding-left: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
         }
 
         /* Cards */
         .item-card {
-            background: #111;
-            border: 1px solid #333;
+            background: #151515;
+            border: 1px solid #252525;
             border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 12px;
+            padding: 16px;
+            margin-bottom: 10px;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: border-color 0.2s;
+            transition: all 0.2s;
         }
 
-        .item-card:hover { border-color: var(--gt-green); }
+        .item-card:hover { 
+            border-color: var(--gt-yellow); 
+            background: #1a1a1a;
+            transform: scale(1.01);
+        }
 
-        /* Modal */
+        /* Modals */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
+            background: rgba(0,0,0,0.9);
             display: none; justify-content: center; align-items: center; z-index: 1000;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(8px);
         }
 
         .modal {
-            background: #111;
-            border: 2px solid var(--gt-brown);
-            border-radius: 15px;
-            width: 90%; max-width: 450px;
-            padding: 30px;
+            background: #0f0f0f;
+            border: 1px solid var(--gt-brown);
+            border-radius: 12px;
+            width: 95%; max-width: 450px;
+            padding: 25px;
             position: relative;
-            max-height: 90vh;
+            max-height: 85vh;
             overflow-y: auto;
         }
 
         .close-btn {
             position: absolute; top: 15px; right: 15px;
-            background: var(--gt-red); border: none; color: white;
-            width: 30px; height: 30px; border-radius: 5px; cursor: pointer;
-            font-weight: bold; z-index: 10;
+            background: #333; border: none; color: white;
+            width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+            font-weight: bold;
         }
 
-        .modal-title { color: var(--gt-yellow); text-align: center; font-size: 32px; font-weight: bold; margin-bottom: 10px; }
-        .modal-desc { color: #ccc; text-align: center; font-size: 14px; margin-bottom: 25px; white-space: pre-wrap; }
+        .modal-title { color: var(--gt-yellow); text-align: center; font-size: 26px; font-weight: 900; margin-bottom: 8px; }
+        .modal-desc { color: #aaa; text-align: center; font-size: 14px; margin-bottom: 20px; line-height: 1.5; white-space: pre-wrap; }
 
-        .drops-label { color: var(--gt-green); font-weight: bold; font-size: 12px; margin-bottom: 15px; text-transform: uppercase; }
-
+        /* Drops */
+        .drops-label { color: var(--gt-green); font-weight: 900; font-size: 11px; margin-bottom: 12px; letter-spacing: 1px; }
         .drop-row {
-            background: #000; border: 1.5px solid var(--gt-green); border-radius: 10px;
-            padding: 12px; display: flex; align-items: center; gap: 15px; margin-bottom: 10px;
+            background: #000; border-left: 4px solid var(--gt-green);
+            padding: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;
+            border-radius: 4px;
         }
+        .drop-name { font-weight: bold; font-size: 15px; }
+        .drop-chance { color: var(--gt-yellow); font-family: monospace; font-size: 14px; }
 
-        .drop-info b { display: block; font-size: 16px; }
-        .drop-info span { color: #888; font-size: 13px; }
-        .drop-info .chance { color: var(--gt-yellow); }
-
-        /* Admin UI */
-        .admin-actions { display: flex; gap: 10px; margin-top: 25px; }
-        .btn { flex: 1; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-        .btn-edit { background: var(--gt-blue); color: white; }
-        .btn-delete { background: var(--gt-red); color: white; }
-        .btn-save { background: var(--gt-green); color: black; }
-
+        /* Form Styling */
         .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; color: var(--gt-yellow); font-size: 12px; }
+        .form-group label { display: block; margin-bottom: 6px; color: var(--gt-yellow); font-size: 11px; font-weight: bold; text-transform: uppercase; }
         .form-group input, .form-group textarea, .form-group select {
-            width: 100%; padding: 10px; background: #222; border: 1px solid #444; color: white; border-radius: 5px;
+            width: 100%; padding: 12px; background: #111; border: 1px solid #333; color: white; border-radius: 6px; outline: none;
         }
 
-        .drop-input-row { display: flex; gap: 5px; margin-bottom: 5px; }
-        
-        #loader {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: black; z-index: 2000; display: flex; align-items: center; justify-content: center;
-            color: var(--gt-yellow); font-weight: bold;
+        .btn { 
+            width: 100%; padding: 14px; border: none; border-radius: 6px; 
+            font-weight: 900; cursor: pointer; text-transform: uppercase; 
+            transition: opacity 0.2s; margin-top: 5px;
         }
+        .btn-save { background: var(--gt-yellow); color: black; }
+        .btn-delete { background: var(--gt-red); color: white; margin-top: 10px; }
+        .btn-edit { background: var(--gt-blue); color: white; }
+
+        /* Loader Overlay */
+        #loader-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: black; z-index: 9999; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 20px;
+        }
+        .spinner { width: 40px; height: 40px; border: 4px solid #222; border-top-color: var(--gt-yellow); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-<div id="loader">CONNECTING TO DAY-PS CLOUD...</div>
+<div id="loader-screen">
+    <div class="spinner"></div>
+    <div style="color: var(--gt-yellow); font-weight: bold; letter-spacing: 2px;">SYNCHRONIZING WITH DAY-PS CLOUD...</div>
+</div>
 
 <div class="top-nav-status">
-    <div class="status-item status-online" id="status-server">
-        <i data-lucide="signal"></i> SERVER STATUS: <span id="txt-server">ONLINE</span>
+    <div class="status-item status-online">
+        <i data-lucide="shield-check" style="width:16px"></i> SERVER: <span id="txt-server">ONLINE</span>
     </div>
-    <div class="status-item status-online" id="status-deposit">
-        <i data-lucide="wallet"></i> DEPOSIT STATUS: <span id="txt-deposit">ACTIVE</span>
+    <div class="status-item status-online">
+        <i data-lucide="zap" style="width:16px"></i> DEPOSITS: <span id="txt-deposit">ACTIVE</span>
     </div>
 </div>
 
@@ -197,47 +215,47 @@
     <button onclick="showTab('customs', this)">Customs</button>
     <button onclick="showTab('events', this)">Events</button>
     <button onclick="showTab('rich', this)">Get Rich</button>
-    <button id="btn-login" onclick="openLogin()">Login</button>
-    <button id="btn-new" style="display:none; background: var(--gt-green); color:black;" onclick="openEditor()">+ NEW POST</button>
+    <button id="btn-login-trigger" onclick="openModal('modalLogin')">Admin Login</button>
+    <button id="btn-new-post" style="display:none; background: var(--gt-green); border-color: var(--gt-green); color:black;" onclick="openEditor()">+ NEW POST</button>
 </nav>
 
 <div class="container">
     <div class="section-box">
-        <section id="updates" class="active"><div class="section-title">Updates</div><div class="list"></div></section>
+        <section id="updates" class="active"><div class="section-title">Latest Updates</div><div class="list"></div></section>
         <section id="customs"><div class="section-title">Custom Items</div><div class="list"></div></section>
-        <section id="events"><div class="section-title">Events</div><div class="list"></div></section>
-        <section id="rich"><div class="section-title">Get Rich Guide</div><div class="list"></div></section>
+        <section id="events"><div class="section-title">Active Events</div><div class="list"></div></section>
+        <section id="rich"><div class="section-title">Economy Guide</div><div class="list"></div></section>
     </div>
 </div>
 
 <!-- Details Modal -->
-<div id="modalDetails" class="modal-overlay" onclick="closeM('modalDetails', event)">
+<div id="modalDetails" class="modal-overlay" onclick="handleOverlayClick(event, 'modalDetails')">
     <div class="modal">
-        <button class="close-btn" onclick="closeM('modalDetails')">X</button>
+        <button class="close-btn" onclick="closeModal('modalDetails')">×</button>
         <div class="modal-title" id="det-title">Item Name</div>
-        <div class="modal-desc" id="det-desc">Description</div>
+        <div class="modal-desc" id="det-desc">Description text goes here.</div>
         
-        <div id="drops-wrapper">
-            <div class="drops-label">DROPS WHEN BROKEN:</div>
+        <div id="drops-section" style="display:none;">
+            <div class="drops-label">REWARDS / DROPS:</div>
             <div id="det-drops"></div>
         </div>
 
-        <div class="admin-actions" id="admin-tools" style="display:none">
-            <button class="btn btn-edit" id="btn-edit-post">EDIT POST</button>
-            <button class="btn btn-delete" id="btn-delete-post">DELETE</button>
+        <div id="admin-actions" style="display:none; margin-top: 30px; border-top: 1px solid #222; padding-top: 20px;">
+            <button class="btn btn-edit" id="action-edit">EDIT POST</button>
+            <button class="btn btn-delete" id="action-delete">DELETE PERMANENTLY</button>
         </div>
     </div>
 </div>
 
 <!-- Editor Modal -->
-<div id="modalEditor" class="modal-overlay" onclick="closeM('modalEditor', event)">
+<div id="modalEditor" class="modal-overlay" onclick="handleOverlayClick(event, 'modalEditor')">
     <div class="modal">
-        <button class="close-btn" onclick="closeM('modalEditor')">X</button>
-        <h2 id="editor-title">Create Post</h2>
+        <button class="close-btn" onclick="closeModal('modalEditor')">×</button>
+        <h2 id="editor-header" style="color:var(--gt-yellow); margin-top:0;">New Post</h2>
         <input type="hidden" id="edit-id">
         
         <div class="form-group">
-            <label>Category</label>
+            <label>Section</label>
             <select id="post-cat">
                 <option value="updates">Updates</option>
                 <option value="customs">Customs</option>
@@ -247,196 +265,229 @@
         </div>
         
         <div class="form-group">
-            <label>Title</label>
-            <input type="text" id="post-title">
+            <label>Post Title</label>
+            <input type="text" id="post-title" placeholder="e.g. New Super Sword">
         </div>
         
         <div class="form-group">
-            <label>Description</label>
-            <textarea id="post-desc" rows="4"></textarea>
+            <label>Details</label>
+            <textarea id="post-desc" rows="5" placeholder="Describe the update or item..."></textarea>
         </div>
 
-        <div class="drops-label">Drops (Optional)</div>
+        <div class="drops-label">Items / Drops</div>
         <div id="editor-drops-list"></div>
-        <button class="btn" style="background:#333; margin-bottom:15px; font-size:10px;" onclick="addDropInput()">+ ADD DROP</button>
+        <button class="btn" style="background:#222; color:#fff; font-size:10px; padding:8px;" onclick="addDropInput()">+ ADD ITEM LINE</button>
 
-        <button class="btn btn-save" onclick="savePost()">PUBLISH TO CLOUD</button>
+        <button class="btn btn-save" style="margin-top:20px" onclick="handleSave()">SAVE TO CLOUD</button>
     </div>
 </div>
 
 <!-- Login Modal -->
-<div id="modalLogin" class="modal-overlay" onclick="closeM('modalLogin', event)">
-    <div class="modal" style="max-width:300px">
-        <h2 style="text-align:center">Admin Access</h2>
-        <input type="password" id="admin-pass" placeholder="Password" style="width:100%; padding:10px; margin-bottom:10px; background:#222; border:1px solid #444; color:white;">
-        <button class="btn btn-edit" style="width:100%" onclick="doLogin()">Login</button>
+<div id="modalLogin" class="modal-overlay" onclick="handleOverlayClick(event, 'modalLogin')">
+    <div class="modal" style="max-width:320px">
+        <h2 style="text-align:center; color:var(--gt-yellow);">Admin Login</h2>
+        <p style="text-align:center; font-size:12px; color:#666; margin-bottom:20px;">Enter password to enable editing</p>
+        <input type="password" id="admin-pass" placeholder="Password" style="width:100%; padding:14px; margin-bottom:15px; background:#111; border:1px solid #333; color:white; border-radius:6px;">
+        <button class="btn btn-save" onclick="handleLogin()">Login</button>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, onSnapshot, collection, setDoc, deleteDoc, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, doc, onSnapshot, collection, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     let db, auth;
-    let posts = [];
+    let allPosts = [];
     let isAdmin = false;
-    let currentAppId = 'dayps-v2';
+    
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'dayps-v3';
+    const firebaseConfig = JSON.parse(__firebase_config);
 
-    // --- Boot Logic ---
-    async function init() {
+    // Initialization
+    async function startApp() {
         lucide.createIcons();
         
         try {
-            const config = JSON.parse(__firebase_config);
-            const app = initializeApp(config);
+            const app = initializeApp(firebaseConfig);
             auth = getAuth(app);
             db = getFirestore(app);
-            currentAppId = typeof __app_id !== 'undefined' ? __app_id : 'dayps-v2';
+
+            // Auth Priority Workflow
+            const initAuth = async () => {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            };
 
             onAuthStateChanged(auth, (user) => {
                 if (user) {
-                    document.getElementById('loader').style.display = 'none';
-                    setupListeners(currentAppId);
+                    document.getElementById('loader-screen').style.display = 'none';
+                    syncPosts();
                 }
             });
 
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
-                await signInAnonymously(auth);
-            }
+            await initAuth();
         } catch(e) {
-            console.error("Init Error:", e);
-            document.getElementById('loader').innerText = "CONNECTION FAILED. REFRESH PAGE.";
+            console.error(e);
+            document.getElementById('loader-screen').innerHTML = `<div style="color:red; font-weight:bold; padding:20px; text-align:center;">CONNECTION FAILED: ${e.message}</div>`;
         }
     }
 
-    function setupListeners(appId) {
-        // Real-time Posts Listener
+    // Real-time Sync Logic with Correct Path Structure
+    function syncPosts() {
+        if (!auth.currentUser) return;
+
+        // Correct Path: /artifacts/{appId}/public/data/{collectionName}
         const postsRef = collection(db, 'artifacts', appId, 'public', 'data', 'posts');
-        onSnapshot(postsRef, (snap) => {
-            posts = snap.docs.map(d => ({id: d.id, ...d.data()}));
-            renderPosts();
-        }, (err) => console.error("Snapshot error:", err));
+        
+        onSnapshot(postsRef, (snapshot) => {
+            allPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderAll();
+        }, (err) => {
+            console.error("Firestore Sync Error:", err);
+            if (err.code === 'permission-denied') {
+                // Potential fallback if sync fails due to rules
+                console.warn("Permissions insufficient. Verify path structure.");
+            }
+        });
     }
 
-    function renderPosts() {
-        const cats = ['updates', 'customs', 'events', 'rich'];
-        cats.forEach(c => {
-            const list = document.querySelector(`#${c} .list`);
-            if (!list) return;
-            list.innerHTML = '';
+    function renderAll() {
+        const sections = ['updates', 'customs', 'events', 'rich'];
+        sections.forEach(cat => {
+            const container = document.querySelector(`#${cat} .list`);
+            if (!container) return;
             
-            const filtered = posts.filter(p => p.cat === c);
-            if (filtered.length === 0) {
-                list.innerHTML = '<div style="text-align:center; opacity:0.2; padding:40px;">No entries yet</div>';
-            }
+            const filtered = allPosts.filter(p => p.cat === cat);
+            container.innerHTML = filtered.length 
+                ? '' 
+                : '<div style="text-align:center; color:#444; padding:50px;">Nothing posted here yet.</div>';
 
-            filtered.forEach(p => {
-                const div = document.createElement('div');
-                div.className = 'item-card';
-                div.innerHTML = `<span>${p.title}</span><i data-lucide="chevron-right" style="width:16px"></i>`;
-                div.onclick = () => showDetails(p);
-                list.appendChild(div);
+            filtered.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0)).forEach(post => {
+                const el = document.createElement('div');
+                el.className = 'item-card';
+                el.innerHTML = `
+                    <div style="font-weight:bold;">${post.title}</div>
+                    <i data-lucide="arrow-right" style="width:16px; color:#444;"></i>
+                `;
+                el.onclick = () => showPostDetails(post);
+                container.appendChild(el);
             });
         });
         lucide.createIcons();
     }
 
-    window.showDetails = (p) => {
-        document.getElementById('det-title').innerText = p.title;
-        document.getElementById('det-desc').innerText = p.desc;
+    window.showPostDetails = (post) => {
+        document.getElementById('det-title').innerText = post.title;
+        document.getElementById('det-desc').innerText = post.desc;
         
-        const dropsContainer = document.getElementById('det-drops');
-        const dropsWrapper = document.getElementById('drops-wrapper');
-        dropsContainer.innerHTML = '';
+        const dropList = document.getElementById('det-drops');
+        const dropBox = document.getElementById('drops-section');
+        dropList.innerHTML = '';
         
-        if (p.drops && p.drops.length > 0) {
-            dropsWrapper.style.display = 'block';
-            p.drops.forEach(d => {
+        if (post.drops && post.drops.length > 0) {
+            dropBox.style.display = 'block';
+            post.drops.forEach(d => {
                 const div = document.createElement('div');
                 div.className = 'drop-row';
-                div.innerHTML = `
-                    <div class="drop-info">
-                        <b>${d.name}</b>
-                        <span>Chance: <span class="chance">${d.chance}%</span></span>
-                    </div>
-                `;
-                dropsContainer.appendChild(div);
+                div.innerHTML = `<span class="drop-name">${d.name}</span><span class="drop-chance">${d.chance}%</span>`;
+                dropList.appendChild(div);
             });
         } else {
-            dropsWrapper.style.display = 'none';
+            dropBox.style.display = 'none';
         }
-        
-        const tools = document.getElementById('admin-tools');
-        tools.style.display = isAdmin ? 'flex' : 'none';
-        
-        document.getElementById('btn-edit-post').onclick = () => { closeM('modalDetails'); openEditor(p); };
-        document.getElementById('btn-delete-post').onclick = () => deletePost(p.id);
 
-        document.getElementById('modalDetails').style.display = 'flex';
-        lucide.createIcons();
+        const adminBar = document.getElementById('admin-actions');
+        adminBar.style.display = isAdmin ? 'block' : 'none';
+
+        document.getElementById('action-edit').onclick = () => { closeModal('modalDetails'); openEditor(post); };
+        document.getElementById('action-delete').onclick = () => deletePost(post.id);
+
+        openModal('modalDetails');
     };
 
-    window.openEditor = (data = null) => {
-        document.getElementById('editor-title').innerText = data ? "Edit Post" : "Create Post";
-        document.getElementById('edit-id').value = data ? data.id : "";
-        document.getElementById('post-cat').value = data ? data.cat : "updates";
-        document.getElementById('post-title').value = data ? data.title : "";
-        document.getElementById('post-desc').value = data ? data.desc : "";
-        document.getElementById('editor-drops-list').innerHTML = "";
+    window.handleSave = async () => {
+        if (!auth.currentUser) return;
         
-        if (data && data.drops) {
-            data.drops.forEach(d => addDropInput(d.name, d.chance));
-        }
-        
-        document.getElementById('modalEditor').style.display = 'flex';
-    };
-
-    window.addDropInput = (name = "", chance = "") => {
-        const div = document.createElement('div');
-        div.className = 'drop-input-row';
-        div.innerHTML = `
-            <input type="text" placeholder="Item Name" value="${name}" class="d-name" style="flex:2">
-            <input type="text" placeholder="%" value="${chance}" class="d-chance" style="flex:1">
-            <button onclick="this.parentElement.remove()" style="background:var(--gt-red); border:none; color:white; padding:5px; border-radius:4px; cursor:pointer">X</button>
-        `;
-        document.getElementById('editor-drops-list').appendChild(div);
-    };
-
-    window.savePost = async () => {
         const id = document.getElementById('edit-id').value || Date.now().toString();
         const cat = document.getElementById('post-cat').value;
-        const title = document.getElementById('post-title').value;
-        const desc = document.getElementById('post-desc').value;
-        
-        if (!title) return alert("Title required");
+        const title = document.getElementById('post-title').value.trim();
+        const desc = document.getElementById('post-desc').value.trim();
+
+        if (!title) return alert("Title is required");
 
         const drops = [];
-        document.querySelectorAll('.drop-input-row').forEach(row => {
-            const n = row.querySelector('.d-name').value;
-            const c = row.querySelector('.d-chance').value;
-            if (n) drops.push({ name: n, chance: c });
+        document.querySelectorAll('.editor-drop-row').forEach(row => {
+            const name = row.querySelector('.in-name').value.trim();
+            const chance = row.querySelector('.in-chance').value.trim();
+            if (name) drops.push({ name, chance });
         });
 
         try {
-            await setDoc(doc(db, 'artifacts', currentAppId, 'public', 'data', 'posts', id), {
-                cat, title, desc, drops, updatedAt: Date.now()
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'posts', id);
+            await setDoc(docRef, {
+                cat, title, desc, drops, 
+                createdAt: id.length > 15 ? Date.now() : (allPosts.find(p => p.id === id)?.createdAt || Date.now())
             });
-            closeM('modalEditor');
-        } catch (e) {
-            alert("Error saving: " + e.message);
+            closeModal('modalEditor');
+        } catch(e) {
+            alert("Save failed: " + e.message);
         }
     };
 
     window.deletePost = async (id) => {
-        if (!confirm("Are you sure you want to delete this post forever?")) return;
+        if (!auth.currentUser) return;
+        if (!confirm("Are you sure? This cannot be undone.")) return;
         try {
-            await deleteDoc(doc(db, 'artifacts', currentAppId, 'public', 'data', 'posts', id));
-            closeM('modalDetails');
-        } catch (e) {
-            alert("Error deleting: " + e.message);
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'posts', id);
+            await deleteDoc(docRef);
+            closeModal('modalDetails');
+        } catch(e) {
+            alert("Delete failed.");
+        }
+    };
+
+    window.openEditor = (post = null) => {
+        document.getElementById('editor-header').innerText = post ? "Edit Post" : "Create Post";
+        document.getElementById('edit-id').value = post ? post.id : "";
+        document.getElementById('post-cat').value = post ? post.cat : "updates";
+        document.getElementById('post-title').value = post ? post.title : "";
+        document.getElementById('post-desc').value = post ? post.desc : "";
+        document.getElementById('editor-drops-list').innerHTML = "";
+        
+        if (post && post.drops) {
+            post.drops.forEach(d => addDropInput(d.name, d.chance));
+        }
+        openModal('modalEditor');
+    };
+
+    window.addDropInput = (name = "", chance = "") => {
+        const div = document.createElement('div');
+        div.className = 'editor-drop-row';
+        div.style.display = 'flex';
+        div.style.gap = '5px';
+        div.style.marginBottom = '5px';
+        div.innerHTML = `
+            <input type="text" placeholder="Item" value="${name}" class="in-name" style="flex:2; padding:8px; background:#111; border:1px solid #333; color:white;">
+            <input type="text" placeholder="%" value="${chance}" class="in-chance" style="flex:1; padding:8px; background:#111; border:1px solid #333; color:white;">
+            <button onclick="this.parentElement.remove()" style="background:#444; border:none; color:white; width:35px; border-radius:4px; cursor:pointer">×</button>
+        `;
+        document.getElementById('editor-drops-list').appendChild(div);
+    };
+
+    window.handleLogin = () => {
+        const pass = document.getElementById('admin-pass').value;
+        if (pass === "Adm1n123") {
+            isAdmin = true;
+            document.getElementById('btn-login-trigger').style.display = 'none';
+            document.getElementById('btn-new-post').style.display = 'block';
+            closeModal('modalLogin');
+            renderAll();
+        } else {
+            alert("Incorrect password.");
         }
     };
 
@@ -447,28 +498,11 @@
         btn.classList.add('active');
     };
 
-    window.openLogin = () => document.getElementById('modalLogin').style.display = 'flex';
-    
-    window.doLogin = () => {
-        const p = document.getElementById('admin-pass').value;
-        if (p === "Adm1n123") {
-            isAdmin = true;
-            document.getElementById('btn-login').style.display = 'none';
-            document.getElementById('btn-new').style.display = 'block';
-            closeM('modalLogin');
-            renderPosts();
-        } else {
-            alert("Wrong password");
-        }
-    };
+    window.openModal = (id) => document.getElementById(id).style.display = 'flex';
+    window.closeModal = (id) => document.getElementById(id).style.display = 'none';
+    window.handleOverlayClick = (e, id) => { if (e.target.id === id) closeModal(id); };
 
-    window.closeM = (id, e) => {
-        if (!e || e.target.classList.contains('modal-overlay')) {
-            document.getElementById(id).style.display = 'none';
-        }
-    };
-
-    init();
+    startApp();
 </script>
 
 </body>
