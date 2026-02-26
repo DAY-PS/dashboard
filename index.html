@@ -924,6 +924,7 @@
             background: rgba(248, 231, 28, 0.05);
         }
     </style>
+<base target="_blank">
 </head>
 <body>
 
@@ -951,13 +952,18 @@
         </div>
     </div>
     <div class="status-right">
-        <div class="player-counter">
+        <div class="player-counter" style="cursor:pointer;" onclick="openChat()" title="Open Chat">
             <i data-lucide="users" style="width:16px"></i>
             <span id="player-count">0</span> PLAYERS ONLINE
+            <i data-lucide="message-circle" style="width:16px; margin-left:8px; color:var(--gt-yellow);"></i>
         </div>
         <div class="status-item" style="color: var(--gt-yellow);">
             <i data-lucide="clock" style="width:16px"></i>
             <span id="server-time">--:--</span>
+        </div>
+        <div class="status-item" id="balance-display" style="display:none;">
+            <img src="https://cnlgaming.com/upload/files/DLS.png" style="width:16px; height:16px;" alt="DLS">
+            <span id="user-balance">0</span> DLS
         </div>
     </div>
 </div>
@@ -971,6 +977,8 @@
     <button id="btn-login-trigger" onclick="openModal('modalLogin')">Admin</button>
     <button id="btn-new-post" style="display:none; background: var(--gt-green); border-color: var(--gt-green); color:black;" onclick="openEditor()">+ New Post</button>
     <button id="btn-new-giveaway" style="display:none; background: var(--gt-purple); border-color: var(--gt-purple); color:white;" onclick="openGiveawayEditor()">+ Giveaway</button>
+    <button id="btn-user-account" onclick="openModal('modalUserAccount')">Account</button>
+    <button id="btn-chat" onclick="openChat()" style="display:none;">Chat</button>
 </nav>
 
 <div class="container">
@@ -1193,6 +1201,7 @@
 <div class="admin-indicator" id="admin-indicator">
     <i data-lucide="shield-alert" style="width:16px"></i>
     ADMIN MODE ACTIVE
+    <button onclick="logoutAdmin()" style="margin-left:10px; background:rgba(255,255,255,0.2); border:none; color:white; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px;">LOGOUT</button>
 </div>
 
 <!-- Toast Container -->
@@ -1799,11 +1808,12 @@ const firebaseConfig = {
     function startClock() {
         const updateTime = () => {
             const now = new Date();
-            document.getElementById('server-time').innerText = now.toLocaleTimeString('en-US', {
-                hour: '2-digit',
-                minute: '2-digit',
-                timeZone: 'America/New_York'
-            }) + ' GT';
+            let hours = now.getHours();
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+            document.getElementById('server-time').innerText = hours + ':' + minutes + ' ' + ampm + ' GT';
         };
         updateTime();
         setInterval(updateTime, 1000);
@@ -1829,6 +1839,547 @@ const firebaseConfig = {
     });
 
     startApp();
+</script>
+
+
+<!-- User Account Modal -->
+<div id="modalUserAccount" class="modal-overlay" onclick="handleOverlayClick(event, 'modalUserAccount')">
+    <div class="modal" style="max-width:400px">
+        <button class="close-btn" onclick="closeModal('modalUserAccount')">×</button>
+        <div id="user-account-content">
+            <!-- Login Form -->
+            <div id="user-login-form">
+                <h2 style="text-align:center; color:var(--gt-yellow); margin-bottom:5px;">Player Login</h2>
+                <p style="text-align:center; font-size:12px; color:#666; margin-bottom:25px;">Access your account</p>
+
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="user-login-username" placeholder="Your username">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="user-login-password" placeholder="••••••••">
+                </div>
+
+                <button class="btn btn-save" onclick="handleUserLogin()">Login</button>
+                <p style="text-align:center; margin-top:15px; font-size:13px; color:#666;">
+                    Don't have an account? <a href="#" onclick="showRegisterForm()" style="color:var(--gt-yellow);">Register</a>
+                </p>
+            </div>
+
+            <!-- Register Form -->
+            <div id="user-register-form" style="display:none;">
+                <h2 style="text-align:center; color:var(--gt-yellow); margin-bottom:5px;">Create Account</h2>
+                <p style="text-align:center; font-size:12px; color:#666; margin-bottom:25px;">Join the community</p>
+
+                <div class="form-group">
+                    <label>Username *</label>
+                    <input type="text" id="user-reg-username" placeholder="Choose username (no spaces)">
+                    <small style="color:#666; font-size:11px;">Must be unique, no repetition allowed</small>
+                </div>
+                <div class="form-group">
+                    <label>Password *</label>
+                    <input type="password" id="user-reg-password" placeholder="••••••••">
+                    <small style="color:#666; font-size:11px;">Min 8 chars, 1 uppercase, 1 symbol (@,#_-!)</small>
+                </div>
+                <div class="form-group">
+                    <label>Confirm Password *</label>
+                    <input type="password" id="user-reg-confirm" placeholder="••••••••">
+                </div>
+
+                <button class="btn btn-save" onclick="handleUserRegister()">Register</button>
+                <p style="text-align:center; margin-top:15px; font-size:13px; color:#666;">
+                    Already have an account? <a href="#" onclick="showLoginForm()" style="color:var(--gt-yellow);">Login</a>
+                </p>
+            </div>
+
+            <!-- Logged In View -->
+            <div id="user-logged-view" style="display:none;">
+                <h2 style="text-align:center; color:var(--gt-yellow); margin-bottom:5px;">My Account</h2>
+                <div style="text-align:center; margin:20px 0;">
+                    <div style="font-size:14px; color:#666;">Welcome back,</div>
+                    <div id="logged-username" style="font-size:24px; font-weight:bold; color:white; margin:10px 0;"></div>
+                    <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin:15px 0;">
+                        <img src="https://cnlgaming.com/upload/files/DLS.png" style="width:32px; height:32px;" alt="DLS">
+                        <span id="logged-balance" style="font-size:28px; color:var(--gt-yellow); font-weight:bold;">0</span>
+                        <span style="color:#666;">DLS</span>
+                    </div>
+                </div>
+                <button class="btn btn-delete" onclick="logoutUser()">Logout</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chat Modal -->
+<div id="modalChat" class="modal-overlay" onclick="handleOverlayClick(event, 'modalChat')">
+    <div class="modal" style="max-width:600px; height:80vh; display:flex; flex-direction:column;">
+        <button class="close-btn" onclick="closeModal('modalChat')">×</button>
+        <h2 style="color:var(--gt-yellow); margin-top:0; display:flex; align-items:center; gap:10px;">
+            <i data-lucide="message-circle"></i> Global Chat
+        </h2>
+
+        <!-- Admin Nickname Selector -->
+        <div id="admin-nick-selector" style="display:none; margin-bottom:15px; padding:10px; background:rgba(189,16,224,0.1); border-radius:8px; border:1px solid var(--gt-purple);">
+            <label style="color:var(--gt-purple); font-size:12px; font-weight:bold;">Admin Chat Nickname:</label>
+            <div style="display:flex; gap:10px; margin-top:5px;">
+                <input type="text" id="admin-nickname" placeholder="Enter admin nickname" style="flex:1; padding:8px; background:rgba(0,0,0,0.5); border:1px solid #333; color:white; border-radius:4px;">
+                <button onclick="saveAdminNickname()" style="background:var(--gt-purple); color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer;">Save</button>
+            </div>
+        </div>
+
+        <div id="current-chat-user" style="margin-bottom:15px; padding:10px; background:rgba(248,231,28,0.1); border-radius:8px; font-size:14px; color:#aaa;">
+            Chatting as: <span id="chat-username-display" style="color:var(--gt-yellow); font-weight:bold;">Guest</span>
+        </div>
+
+        <div id="chat-messages" style="flex:1; overflow-y:auto; background:rgba(0,0,0,0.3); border-radius:8px; padding:15px; margin-bottom:15px; max-height:400px;">
+            <div style="text-align:center; color:#444; padding:20px;">No messages yet. Start the conversation!</div>
+        </div>
+
+        <div id="chat-input-area" style="display:flex; gap:10px;">
+            <input type="text" id="chat-input" placeholder="Type your message..." style="flex:1; padding:12px; background:rgba(0,0,0,0.5); border:2px solid #333; color:white; border-radius:8px; outline:none;" onkeypress="if(event.key==='Enter')sendChatMessage()">
+            <button onclick="sendChatMessage()" style="background:var(--gt-yellow); color:black; border:none; padding:12px 20px; border-radius:8px; font-weight:bold; cursor:pointer;">Send</button>
+        </div>
+    </div>
+</div>
+
+<!-- Admin Balance Editor Modal -->
+<div id="modalBalanceEditor" class="modal-overlay" onclick="handleOverlayClick(event, 'modalBalanceEditor')">
+    <div class="modal" style="max-width:400px">
+        <button class="close-btn" onclick="closeModal('modalBalanceEditor')">×</button>
+        <h2 style="color:var(--gt-yellow); margin-top:0;">Edit Player Balance</h2>
+        <p style="color:#666; font-size:13px; margin-bottom:20px;">Add or remove DLS from player accounts</p>
+
+        <div class="form-group">
+            <label>Select Player</label>
+            <select id="balance-player-select" style="width:100%; padding:12px; background:rgba(0,0,0,0.5); border:2px solid #333; color:white; border-radius:8px;">
+                <option value="">-- Select Player --</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Current Balance</label>
+            <div style="display:flex; align-items:center; gap:10px; padding:12px; background:rgba(0,0,0,0.3); border-radius:8px;">
+                <img src="https://cnlgaming.com/upload/files/DLS.png" style="width:20px; height:20px;" alt="DLS">
+                <span id="selected-player-balance" style="font-size:18px; color:var(--gt-yellow); font-weight:bold;">0</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Amount (use negative to remove)</label>
+            <input type="number" id="balance-amount" placeholder="e.g. 100 or -50" style="width:100%; padding:12px; background:rgba(0,0,0,0.5); border:2px solid #333; color:white; border-radius:8px;">
+        </div>
+
+        <button class="btn btn-save" onclick="updatePlayerBalance()">Update Balance</button>
+    </div>
+</div>
+
+
+<script>
+// ==================== GLOBAL VARIABLES ====================
+let currentUser = null;
+let isAdmin = false;
+let adminNickname = localStorage.getItem('admin_nickname') || '';
+let chatMessages = JSON.parse(localStorage.getItem('chat_messages') || '[]');
+let userAccounts = JSON.parse(localStorage.getItem('user_accounts') || '[]');
+let userBalances = JSON.parse(localStorage.getItem('user_balances') || '{}');
+
+// ==================== ADMIN FUNCTIONS ====================
+function logoutAdmin() {
+    isAdmin = false;
+    sessionStorage.removeItem('dayps_admin');
+    document.getElementById('btn-login-trigger').style.display = 'block';
+    document.getElementById('btn-new-post').style.display = 'none';
+    document.getElementById('btn-new-giveaway').style.display = 'none';
+    document.getElementById('admin-indicator').classList.remove('active');
+
+    // Disable status toggles
+    const serverBtn = document.getElementById('server-status-btn');
+    const depositBtn = document.getElementById('deposit-status-btn');
+    if (serverBtn) {
+        serverBtn.onclick = null;
+        serverBtn.style.cursor = 'default';
+        serverBtn.title = 'Admin only';
+    }
+    if (depositBtn) {
+        depositBtn.onclick = null;
+        depositBtn.style.cursor = 'default';
+        depositBtn.title = 'Admin only';
+    }
+
+    showToast('Logged out from admin', 'info');
+}
+
+// ==================== USER ACCOUNT FUNCTIONS ====================
+function showRegisterForm() {
+    document.getElementById('user-login-form').style.display = 'none';
+    document.getElementById('user-register-form').style.display = 'block';
+}
+
+function showLoginForm() {
+    document.getElementById('user-register-form').style.display = 'none';
+    document.getElementById('user-login-form').style.display = 'block';
+}
+
+function validatePassword(password) {
+    if (password.length < 8) return "Password must be at least 8 characters";
+    if (!/[A-Z]/.test(password)) return "Password must contain at least 1 uppercase letter";
+    if (!/[@#_\-!]/.test(password)) return "Password must contain at least 1 symbol (@,#_-!)";
+    return null;
+}
+
+function handleUserRegister() {
+    const username = document.getElementById('user-reg-username').value.trim();
+    const password = document.getElementById('user-reg-password').value;
+    const confirm = document.getElementById('user-reg-confirm').value;
+
+    if (!username) return showToast('Username is required', 'error');
+    if (username.includes(' ')) return showToast('Username cannot contain spaces', 'error');
+    if (userAccounts.find(u => u.username === username)) return showToast('Username already exists', 'error');
+
+    const passError = validatePassword(password);
+    if (passError) return showToast(passError, 'error');
+    if (password !== confirm) return showToast('Passwords do not match', 'error');
+
+    userAccounts.push({ username, password });
+    localStorage.setItem('user_accounts', JSON.stringify(userAccounts));
+
+    // Initialize balance
+    if (!userBalances[username]) userBalances[username] = 0;
+    localStorage.setItem('user_balances', JSON.stringify(userBalances));
+
+    showToast('Account created successfully! Please login.', 'success');
+    showLoginForm();
+}
+
+function handleUserLogin() {
+    const username = document.getElementById('user-login-username').value.trim();
+    const password = document.getElementById('user-login-password').value;
+
+    const user = userAccounts.find(u => u.username === username && u.password === password);
+    if (!user) return showToast('Invalid username or password', 'error');
+
+    currentUser = user;
+    localStorage.setItem('current_user', username);
+
+    updateUIForLoggedUser();
+    closeModal('modalUserAccount');
+    showToast('Welcome back, ' + username + '!', 'success');
+}
+
+function logoutUser() {
+    currentUser = null;
+    localStorage.removeItem('current_user');
+    updateUIForLoggedUser();
+    closeModal('modalUserAccount');
+    showToast('Logged out successfully', 'info');
+}
+
+function updateUIForLoggedUser() {
+    const balanceDisplay = document.getElementById('balance-display');
+    const btnUserAccount = document.getElementById('btn-user-account');
+    const btnChat = document.getElementById('btn-chat');
+
+    if (currentUser) {
+        balanceDisplay.style.display = 'flex';
+        document.getElementById('user-balance').innerText = userBalances[currentUser.username] || 0;
+        btnChat.style.display = 'block';
+
+        // Update account modal
+        document.getElementById('user-login-form').style.display = 'none';
+        document.getElementById('user-register-form').style.display = 'none';
+        document.getElementById('user-logged-view').style.display = 'block';
+        document.getElementById('logged-username').innerText = currentUser.username;
+        document.getElementById('logged-balance').innerText = userBalances[currentUser.username] || 0;
+    } else {
+        balanceDisplay.style.display = 'none';
+        btnChat.style.display = 'none';
+
+        document.getElementById('user-login-form').style.display = 'block';
+        document.getElementById('user-register-form').style.display = 'none';
+        document.getElementById('user-logged-view').style.display = 'none';
+    }
+}
+
+// ==================== CHAT FUNCTIONS ====================
+function openChat() {
+    openModal('modalChat');
+    renderChatMessages();
+
+    // Setup chat user display
+    const chatUserDisplay = document.getElementById('chat-username-display');
+    const adminNickSelector = document.getElementById('admin-nick-selector');
+
+    if (isAdmin) {
+        adminNickSelector.style.display = 'block';
+        document.getElementById('admin-nickname').value = adminNickname;
+        chatUserDisplay.innerText = adminNickname || 'Admin';
+    } else if (currentUser) {
+        adminNickSelector.style.display = 'none';
+        chatUserDisplay.innerText = currentUser.username;
+    } else {
+        adminNickSelector.style.display = 'none';
+        chatUserDisplay.innerText = 'Guest_' + Math.floor(Math.random() * 10000);
+    }
+}
+
+function saveAdminNickname() {
+    adminNickname = document.getElementById('admin-nickname').value.trim();
+    localStorage.setItem('admin_nickname', adminNickname);
+    document.getElementById('chat-username-display').innerText = adminNickname || 'Admin';
+    showToast('Admin nickname saved', 'success');
+}
+
+function sendChatMessage() {
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if (!text) return;
+
+    let sender;
+    if (isAdmin) {
+        sender = adminNickname || 'Admin';
+    } else if (currentUser) {
+        sender = currentUser.username;
+    } else {
+        sender = document.getElementById('chat-username-display').innerText;
+    }
+
+    const message = {
+        id: Date.now(),
+        sender,
+        text,
+        timestamp: new Date().toISOString(),
+        isAdmin: isAdmin
+    };
+
+    chatMessages.push(message);
+    localStorage.setItem('chat_messages', JSON.stringify(chatMessages));
+    input.value = '';
+    renderChatMessages();
+}
+
+function renderChatMessages() {
+    const container = document.getElementById('chat-messages');
+    if (chatMessages.length === 0) {
+        container.innerHTML = '<div style="text-align:center; color:#444; padding:20px;">No messages yet. Start the conversation!</div>';
+        return;
+    }
+
+    container.innerHTML = '';
+    chatMessages.forEach(msg => {
+        const div = document.createElement('div');
+        div.style.cssText = 'margin-bottom:15px; padding:10px; background:rgba(255,255,255,0.05); border-radius:8px; position:relative;';
+
+        const time = new Date(msg.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+        const isOwnMessage = (currentUser && msg.sender === currentUser.username) || (isAdmin && msg.isAdmin);
+        const canDelete = isOwnMessage || isAdmin;
+
+        div.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                <span style="color:${msg.isAdmin ? 'var(--gt-purple)' : 'var(--gt-yellow)'}; font-weight:bold; font-size:13px;">${msg.sender}</span>
+                <span style="color:#444; font-size:11px;">${time}</span>
+            </div>
+            <div style="color:#ccc; font-size:14px; word-break:break-word;">${escapeHtml(msg.text)}</div>
+            ${canDelete ? `<button onclick="deleteChatMessage(${msg.id})" style="position:absolute; top:5px; right:5px; background:var(--gt-red); color:white; border:none; padding:2px 8px; border-radius:4px; font-size:10px; cursor:pointer; opacity:0.7;">Delete</button>` : ''}
+        `;
+        container.appendChild(div);
+    });
+    container.scrollTop = container.scrollHeight;
+}
+
+function deleteChatMessage(id) {
+    const msg = chatMessages.find(m => m.id === id);
+    if (!msg) return;
+
+    const isOwnMessage = currentUser && msg.sender === currentUser.username;
+    if (!isOwnMessage && !isAdmin) return showToast('You can only delete your own messages', 'error');
+
+    chatMessages = chatMessages.filter(m => m.id !== id);
+    localStorage.setItem('chat_messages', JSON.stringify(chatMessages));
+    renderChatMessages();
+    showToast('Message deleted', 'info');
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// ==================== STATUS TOGGLE (ADMIN ONLY) ====================
+function setupStatusToggles() {
+    const serverBtn = document.getElementById('server-status-btn');
+    const depositBtn = document.getElementById('deposit-status-btn');
+
+    if (isAdmin) {
+        serverBtn.onclick = toggleServerStatus;
+        serverBtn.style.cursor = 'pointer';
+        serverBtn.title = 'Click to toggle (Admin)';
+        depositBtn.onclick = toggleDepositStatus;
+        depositBtn.style.cursor = 'pointer';
+        depositBtn.title = 'Click to toggle (Admin)';
+    } else {
+        serverBtn.onclick = null;
+        serverBtn.style.cursor = 'default';
+        serverBtn.title = 'Admin only';
+        depositBtn.onclick = null;
+        depositBtn.style.cursor = 'default';
+        depositBtn.title = 'Admin only';
+    }
+}
+
+function toggleServerStatus() {
+    if (!isAdmin) return showToast('Admin only feature', 'error');
+
+    const serverEl = document.getElementById('txt-server');
+    const statusBtn = document.getElementById('server-status-btn');
+    const currentStatus = serverEl.innerText;
+
+    if (currentStatus === 'ONLINE') {
+        serverEl.innerText = 'OFFLINE';
+        statusBtn.classList.remove('status-online');
+        statusBtn.classList.add('status-offline');
+        localStorage.setItem('server_status', 'OFFLINE');
+        showToast('Server status changed to OFFLINE', 'error');
+    } else {
+        serverEl.innerText = 'ONLINE';
+        statusBtn.classList.remove('status-offline');
+        statusBtn.classList.add('status-online');
+        localStorage.setItem('server_status', 'ONLINE');
+        showToast('Server status changed to ONLINE', 'success');
+    }
+}
+
+function toggleDepositStatus() {
+    if (!isAdmin) return showToast('Admin only feature', 'error');
+
+    const depositEl = document.getElementById('txt-deposit');
+    const statusBtn = document.getElementById('deposit-status-btn');
+    const currentStatus = depositEl.innerText;
+
+    if (currentStatus === 'ACTIVE') {
+        depositEl.innerText = 'INACTIVE';
+        statusBtn.classList.remove('status-online');
+        statusBtn.classList.add('status-offline');
+        localStorage.setItem('deposit_status', 'INACTIVE');
+        showToast('Deposits changed to INACTIVE', 'error');
+    } else {
+        depositEl.innerText = 'ACTIVE';
+        statusBtn.classList.remove('status-offline');
+        statusBtn.classList.add('status-online');
+        localStorage.setItem('deposit_status', 'ACTIVE');
+        showToast('Deposits changed to ACTIVE', 'success');
+    }
+}
+
+// ==================== BALANCE EDITOR (ADMIN) ====================
+function openBalanceEditor() {
+    if (!isAdmin) return showToast('Admin only feature', 'error');
+
+    const select = document.getElementById('balance-player-select');
+    select.innerHTML = '<option value="">-- Select Player --</option>';
+
+    userAccounts.forEach(user => {
+        const option = document.createElement('option');
+        option.value = user.username;
+        option.innerText = user.username + ' (' + (userBalances[user.username] || 0) + ' DLS)';
+        select.appendChild(option);
+    });
+
+    select.onchange = function() {
+        const username = this.value;
+        document.getElementById('selected-player-balance').innerText = userBalances[username] || 0;
+    };
+
+    openModal('modalBalanceEditor');
+}
+
+function updatePlayerBalance() {
+    const username = document.getElementById('balance-player-select').value;
+    const amount = parseInt(document.getElementById('balance-amount').value) || 0;
+
+    if (!username) return showToast('Please select a player', 'error');
+
+    userBalances[username] = (userBalances[username] || 0) + amount;
+    localStorage.setItem('user_balances', JSON.stringify(userBalances));
+
+    document.getElementById('selected-player-balance').innerText = userBalances[username];
+    document.getElementById('balance-amount').value = '';
+
+    // Update UI if viewing that player
+    updateUIForLoggedUser();
+
+    showToast(`Balance updated for ${username}. ${amount > 0 ? 'Added' : 'Removed'} ${Math.abs(amount)} DLS`, 'success');
+}
+
+// ==================== INITIALIZATION ====================
+// Load saved status
+const savedServerStatus = localStorage.getItem('server_status') || 'ONLINE';
+const savedDepositStatus = localStorage.getItem('deposit_status') || 'ACTIVE';
+
+// Apply saved status
+if (savedServerStatus === 'OFFLINE') {
+    document.getElementById('txt-server').innerText = 'OFFLINE';
+    const btn = document.getElementById('server-status-btn');
+    btn.classList.remove('status-online');
+    btn.classList.add('status-offline');
+}
+
+if (savedDepositStatus === 'INACTIVE') {
+    document.getElementById('txt-deposit').innerText = 'INACTIVE';
+    const btn = document.getElementById('deposit-status-btn');
+    btn.classList.remove('status-online');
+    btn.classList.add('status-offline');
+}
+
+// Check for logged in user
+const savedUser = localStorage.getItem('current_user');
+if (savedUser) {
+    currentUser = userAccounts.find(u => u.username === savedUser);
+    if (currentUser) updateUIForLoggedUser();
+}
+
+// Setup admin check
+if (sessionStorage.getItem('dayps_admin') === 'true') {
+    isAdmin = true;
+    document.getElementById('btn-login-trigger').style.display = 'none';
+    document.getElementById('btn-new-post').style.display = 'block';
+    document.getElementById('btn-new-giveaway').style.display = 'block';
+    document.getElementById('admin-indicator').classList.add('active');
+    setupStatusToggles();
+}
+
+// Override handleLogin to setup toggles
+const originalHandleLogin = window.handleLogin;
+window.handleLogin = function() {
+    const pass = document.getElementById('admin-pass').value;
+    if (pass === "Adm1n123" || pass === "dayps2024") {
+        isAdmin = true;
+        sessionStorage.setItem('dayps_admin', 'true');
+        document.getElementById('btn-login-trigger').style.display = 'none';
+        document.getElementById('btn-new-post').style.display = 'block';
+        document.getElementById('btn-new-giveaway').style.display = 'block';
+        document.getElementById('admin-indicator').classList.add('active');
+        closeModal('modalLogin');
+        showToast('Admin mode activated', 'success');
+        setupStatusToggles();
+
+        // Add balance editor button for admin
+        if (!document.getElementById('btn-balance-editor')) {
+            const nav = document.getElementById('main-nav');
+            const btn = document.createElement('button');
+            btn.id = 'btn-balance-editor';
+            btn.innerText = 'Edit Balances';
+            btn.style.background = 'var(--gt-orange)';
+            btn.style.borderColor = 'var(--gt-orange)';
+            btn.style.color = 'black';
+            btn.onclick = openBalanceEditor;
+            nav.appendChild(btn);
+        }
+    } else {
+        showToast('Invalid credentials', 'error');
+    }
+};
 </script>
 
 </body>
