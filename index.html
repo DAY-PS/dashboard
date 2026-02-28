@@ -919,9 +919,12 @@
                 loadUserData(user.uid).then(() => {
                     console.log('User data loaded, updating UI...');
                     updateAuthUI();
-                    updateChatUI();
-                    initNewChat();
                     setupPresence();
+                    // Only init chat if on community page
+                    if (document.getElementById('community').classList.contains('active')) {
+                        initNewChat();
+                        updateChatUI();
+                    }
                 }).catch((error) => {
                     console.error('Error loading user data:', error);
                 });
@@ -931,7 +934,9 @@
                 userData = null;
                 isAdmin = false;
                 updateAuthUI();
-                updateChatUI();
+                if (document.getElementById('community').classList.contains('active')) {
+                    updateChatUI();
+                }
             }
         }, (error) => {
             console.error('Auth state error:', error);
@@ -1733,7 +1738,6 @@
                         console.log('Sign in successful:', userCredential.user.uid);
                         closeModal('auth-modal');
                         document.getElementById('auth-form').reset();
-                        alert('Welcome back!');
                     })
                     .catch((error) => {
                         console.error('Sign in error:', error.code, error.message);
@@ -1767,7 +1771,6 @@
                         console.log('User data saved to database');
                         closeModal('auth-modal');
                         document.getElementById('auth-form').reset();
-                        alert('Account created! Welcome to DAY-PS, ' + username + '!');
                     })
                     .catch((error) => {
                         console.error('Sign up error:', error.code, error.message);
@@ -1879,17 +1882,26 @@
             const statusEl = document.getElementById('chat-user-status');
             const loginBtn = document.getElementById('chat-login-btn');
             const inputArea = document.getElementById('new-chat-input-area');
+            const chatInput = document.getElementById('new-chat-input');
 
-            if (currentUser && userData) {
-                statusEl.textContent = 'Chatting as: ' + (userData.username || 'User');
+            if (!statusEl || !loginBtn || !inputArea) return;
+
+            if (currentUser && userData && userData.username) {
+                console.log('Chat UI: User is logged in as', userData.username);
+                statusEl.textContent = 'Chatting as: ' + userData.username;
                 loginBtn.textContent = 'Switch Account';
                 inputArea.style.opacity = '1';
                 inputArea.style.pointerEvents = 'auto';
+                chatInput.disabled = false;
+                chatInput.placeholder = 'Type a message...';
             } else {
+                console.log('Chat UI: User not logged in');
                 statusEl.textContent = 'Not logged in';
                 loginBtn.textContent = 'Sign In';
                 inputArea.style.opacity = '0.5';
                 inputArea.style.pointerEvents = 'none';
+                chatInput.disabled = true;
+                chatInput.placeholder = 'Please sign in to chat';
             }
         }
 
