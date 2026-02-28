@@ -264,6 +264,7 @@
             text-transform: uppercase;
         }
     </style>
+<base target="_blank">
 </head>
 <body class="bg-gray-900 text-white overflow-x-hidden">
     <!-- Three.js Background -->
@@ -286,7 +287,7 @@
                     <a onclick="showPage('events')" class="nav-link text-gray-300 hover:text-white transition-colors" data-page="events">Events</a>
                     <a onclick="showPage('giveaway')" class="nav-link text-gray-300 hover:text-white transition-colors" data-page="giveaway">Giveaways</a>
                     <a onclick="showPage('community')" class="nav-link text-gray-300 hover:text-white transition-colors" data-page="community">Community</a>
-                    <a onclick="showPage('admin')" class="nav-link admin-only text-purple-400 hover:text-purple-300 transition-colors" data-page="admin">Admin Panel</a>
+                    <a onclick="showPage('admin')" class="nav-link admin-only hidden text-purple-400 hover:text-purple-300 transition-colors" data-page="admin">Admin Panel</a>
                 </div>
                 
                 <div class="flex items-center space-x-4">
@@ -295,18 +296,17 @@
                         <span class="text-xs text-gray-400">Online</span>
                     </div>
                     
-                    <div id="auth-buttons">
-                        <button onclick="openModal('login-modal')" class="px-4 py-2 rounded-full border border-gray-600 hover:border-cyan-500 hover:text-cyan-400 transition-all text-sm font-semibold">
-                            Log In
+                    <div id="auth-buttons" class="flex items-center gap-2">
+                        <button onclick="openModal('auth-modal')" class="px-4 py-2 rounded-full border border-cyan-600 text-cyan-400 hover:bg-cyan-600/20 transition-all text-sm font-semibold">
+                            Sign In
                         </button>
-                        <button onclick="openModal('register-modal')" class="btn-primary px-4 py-2 rounded-full text-gray-900 font-semibold text-sm">
-                            Register
+                        <button onclick="openModal('admin-login-modal')" class="px-3 py-2 rounded-full border border-purple-600 text-purple-400 hover:bg-purple-600/20 transition-all text-sm font-semibold">
+                            Admin
                         </button>
                     </div>
                     
                     <div id="user-menu" class="hidden items-center space-x-3">
                         <span id="username-display" class="text-sm text-gray-300"></span>
-                        <span id="role-badge" class="px-2 py-1 rounded text-xs bg-gray-800 border border-gray-700"></span>
                         <button onclick="logout()" class="px-4 py-2 rounded-full border border-red-600 text-red-400 hover:bg-red-600/20 transition-all text-sm font-semibold">
                             Log Out
                         </button>
@@ -536,8 +536,6 @@
                                 <th class="pb-3 text-gray-400 font-medium">Email</th>
                                 <th class="pb-3 text-gray-400 font-medium">GrowID</th>
                                 <th class="pb-3 text-gray-400 font-medium">Registered</th>
-                                <th class="pb-3 text-gray-400 font-medium">Current Role</th>
-                                <th class="pb-3 text-gray-400 font-medium">Change Role</th>
                             </tr>
                         </thead>
                         <tbody id="users-table-body" class="text-sm">
@@ -589,69 +587,79 @@
 
     <!-- MODALS -->
 
-    <!-- Login Modal -->
-    <div id="login-modal" class="modal">
+
+
+
+
+
+    <!-- Unified Auth Modal -->
+    <div id="auth-modal" class="modal">
         <div class="glass-panel rounded-2xl p-8 border border-gray-700 w-full max-w-md mx-4">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold">Log In - DAY-PS</h3>
-                <button onclick="closeModal('login-modal')" class="text-gray-400 hover:text-white">
+                <h3 class="text-2xl font-bold gradient-text" id="auth-title">Sign In</h3>
+                <button onclick="closeModal('auth-modal')" class="text-gray-400 hover:text-white">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
             </div>
-            <form onsubmit="handleLogin(event)" class="space-y-4">
+
+            <!-- Toggle Buttons -->
+            <div class="flex gap-2 mb-6 p-1 bg-gray-800 rounded-lg">
+                <button type="button" id="signin-toggle" onclick="toggleAuthMode('signin')" class="flex-1 py-2 rounded-md text-sm font-bold bg-cyan-600 text-white transition-all">
+                    Sign In
+                </button>
+                <button type="button" id="signup-toggle" onclick="toggleAuthMode('signup')" class="flex-1 py-2 rounded-md text-sm font-bold text-gray-400 hover:text-white transition-all">
+                    Sign Up
+                </button>
+            </div>
+
+            <form onsubmit="handleAuth(event)" id="auth-form" class="space-y-4">
+                <div id="username-field" class="hidden">
+                    <label class="block text-sm font-medium text-gray-400 mb-2">Username</label>
+                    <input type="text" id="auth-username" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-cyan-500 focus:outline-none" placeholder="Your display name">
+                </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-400 mb-2">Email</label>
-                    <input type="email" id="login-email" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-cyan-500 focus:outline-none">
+                    <input type="email" id="auth-email" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-cyan-500 focus:outline-none" placeholder="you@example.com">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-400 mb-2">Password</label>
-                    <input type="password" id="login-password" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-cyan-500 focus:outline-none">
+                    <input type="password" id="auth-password" required minlength="6" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-cyan-500 focus:outline-none" placeholder="••••••••">
                 </div>
-                <button type="submit" class="btn-primary w-full py-3 rounded-lg text-gray-900 font-bold">
-                    Log In
+                <div id="growid-field" class="hidden">
+                    <label class="block text-sm font-medium text-gray-400 mb-2">GrowID</label>
+                    <input type="text" id="auth-growid" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-cyan-500 focus:outline-none" placeholder="Your in-game name">
+                </div>
+                <button type="submit" id="auth-submit-btn" class="btn-primary w-full py-3 rounded-lg text-gray-900 font-bold">
+                    Sign In
                 </button>
             </form>
-            <p class="mt-4 text-center text-sm text-gray-400">
-                Don't have an account? 
-                <button onclick="closeModal('login-modal'); openModal('register-modal')" class="text-cyan-400 hover:underline">Register</button>
-            </p>
+
+
         </div>
     </div>
-
-    <!-- Register Modal -->
-    <div id="register-modal" class="modal">
-        <div class="glass-panel rounded-2xl p-8 border border-gray-700 w-full max-w-md mx-4">
+    <!-- Admin Login Modal -->
+    <div id="admin-login-modal" class="modal">
+        <div class="glass-panel rounded-2xl p-8 border border-purple-700 w-full max-w-md mx-4">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold">Register - DAY-PS</h3>
-                <button onclick="closeModal('register-modal')" class="text-gray-400 hover:text-white">
+                <h3 class="text-2xl font-bold text-purple-400">Admin Access</h3>
+                <button onclick="closeModal('admin-login-modal')" class="text-gray-400 hover:text-white">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
             </div>
-            <form onsubmit="handleRegister(event)" class="space-y-4">
+            <form onsubmit="handleAdminLogin(event)" class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-400 mb-2">Username</label>
-                    <input type="text" id="reg-username" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-cyan-500 focus:outline-none">
+                    <label class="block text-sm font-medium text-purple-400 mb-2">Admin Password</label>
+                    <input type="password" id="admin-password" required class="w-full bg-gray-800 border border-purple-700 rounded-lg px-4 py-3 text-white focus:border-purple-500 focus:outline-none" placeholder="Enter admin password">
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-400 mb-2">Email</label>
-                    <input type="email" id="reg-email" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-cyan-500 focus:outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-400 mb-2">Password</label>
-                    <input type="password" id="reg-password" required minlength="6" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-cyan-500 focus:outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-400 mb-2">GrowID</label>
-                    <input type="text" id="reg-growid" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-cyan-500 focus:outline-none" placeholder="Your in-game name">
-                </div>
-                <button type="submit" class="btn-primary w-full py-3 rounded-lg text-gray-900 font-bold">
-                    Create Account
+                <button type="submit" class="w-full py-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-bold transition-colors">
+                    Access Admin Panel
                 </button>
             </form>
+            <p class="mt-4 text-center text-sm text-gray-500">Authorized personnel only</p>
         </div>
     </div>
 
@@ -830,6 +838,9 @@
         const db = firebase.database();
         const firestore = firebase.firestore();
 
+        // Enable auth persistence
+        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
         // ================= GLOBAL STATE =================
         let currentUser = null;
         let userData = null;
@@ -838,24 +849,7 @@
         let currentViewPost = null;
         let chatOpen = false;
 
-        const roles = ['User', 'VIP', 'Moderator', 'Developer', 'Super-Developer', 'Admin'];
-        const roleColors = {
-            'User': 'text-gray-400',
-            'VIP': 'text-yellow-400',
-            'Moderator': 'text-blue-400',
-            'Developer': 'text-green-400',
-            'Super-Developer': 'text-purple-400',
-            'Admin': 'text-red-400'
-        };
-
-        const roleBadgeClasses = {
-            'User': 'role-badge-user',
-            'VIP': 'role-badge-vip',
-            'Moderator': 'role-badge-moderator',
-            'Developer': 'role-badge-developer',
-            'Super-Developer': 'role-badge-superdev',
-            'Admin': 'role-badge-admin'
-        };
+        // Role display removed - simplified system
 
         // ================= THREE.JS BACKGROUND =================
         const scene = new THREE.Scene();
@@ -914,13 +908,15 @@
                 currentUser = user;
                 await loadUserData(user.uid);
                 updateAuthUI();
-                initChat();
+                updateChatUI();
+                initNewChat();
+                setupPresence();
             } else {
                 currentUser = null;
                 userData = null;
                 isAdmin = false;
                 updateAuthUI();
-                initChat();
+                updateChatUI();
             }
         });
 
@@ -1050,16 +1046,20 @@
 
         function showAdminControls() {
             document.querySelectorAll('.admin-only').forEach(el => {
+                el.classList.remove('hidden');
                 el.classList.add('visible');
             });
-            document.querySelector('a[data-page="admin"]').classList.remove('admin-only');
+            const adminNav = document.querySelector('a[data-page="admin"]');
+            if (adminNav) adminNav.classList.remove('hidden');
         }
 
         function hideAdminControls() {
             document.querySelectorAll('.admin-only').forEach(el => {
+                el.classList.add('hidden');
                 el.classList.remove('visible');
             });
-            document.querySelector('a[data-page="admin"]').classList.add('admin-only');
+            const adminNav = document.querySelector('a[data-page="admin"]');
+            if (adminNav) adminNav.classList.add('hidden');
         }
 
         // ================= POST MANAGEMENT =================
@@ -1636,21 +1636,19 @@
             });
         }
 
-        async function changeUserRole(uid, newRole) {
-            if(!isAdmin) return;
-            await db.ref('users/' + uid + '/role').set(newRole);
-            alert('Role updated successfully!');
-        }
+
 
         // ================= PRESENCE SYSTEM =================
-        if(auth.currentUser) {
-            const presenceRef = db.ref('presence/' + auth.currentUser.uid);
-            db.ref('.info/connected').on('value', (snap) => {
-                if(snap.val()) {
-                    presenceRef.onDisconnect().remove();
-                    presenceRef.set(true);
-                }
-            });
+        function setupPresence() {
+            if(auth.currentUser) {
+                const presenceRef = db.ref('presence/' + auth.currentUser.uid);
+                db.ref('.info/connected').on('value', (snap) => {
+                    if(snap.val()) {
+                        presenceRef.onDisconnect().remove();
+                        presenceRef.set(true);
+                    }
+                });
+            }
         }
 
         // ================= INITIALIZATION =================
@@ -1667,8 +1665,204 @@
             document.getElementById('player-count').textContent = (baseCount + variation).toLocaleString();
         }, 5000);
 
-        // Start minimized
-        document.getElementById('chat-content').classList.add('hidden');
+
+        // New Auth System
+        let authMode = 'signin'; // 'signin' or 'signup'
+
+        function toggleAuthMode(mode) {
+            authMode = mode;
+            const signinBtn = document.getElementById('signin-toggle');
+            const signupBtn = document.getElementById('signup-toggle');
+            const usernameField = document.getElementById('username-field');
+            const growidField = document.getElementById('growid-field');
+            const submitBtn = document.getElementById('auth-submit-btn');
+            const authTitle = document.getElementById('auth-title');
+
+            if (mode === 'signin') {
+                signinBtn.classList.add('bg-cyan-600', 'text-white');
+                signinBtn.classList.remove('text-gray-400');
+                signupBtn.classList.remove('bg-cyan-600', 'text-white');
+                signupBtn.classList.add('text-gray-400');
+                usernameField.classList.add('hidden');
+                growidField.classList.add('hidden');
+                submitBtn.textContent = 'Sign In';
+                authTitle.textContent = 'Sign In';
+            } else {
+                signupBtn.classList.add('bg-cyan-600', 'text-white');
+                signupBtn.classList.remove('text-gray-400');
+                signinBtn.classList.remove('bg-cyan-600', 'text-white');
+                signinBtn.classList.add('text-gray-400');
+                usernameField.classList.remove('hidden');
+                growidField.classList.remove('hidden');
+                submitBtn.textContent = 'Create Account';
+                authTitle.textContent = 'Sign Up';
+            }
+        }
+
+        async function handleAuth(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+
+            if (authMode === 'signin') {
+                // Sign In
+                try {
+                    await auth.signInWithEmailAndPassword(email, password);
+                    closeModal('auth-modal');
+                    document.getElementById('auth-form').reset();
+                } catch (error) {
+                    alert('Sign in failed: ' + error.message);
+                }
+            } else {
+                // Sign Up
+                const username = document.getElementById('auth-username').value.trim();
+                const growid = document.getElementById('auth-growid').value.trim();
+
+                if (!username || !growid) {
+                    alert('Please fill in all fields');
+                    return;
+                }
+
+                try {
+                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                    await db.ref('users/' + userCredential.user.uid).set({
+                        username: username,
+                        email: email,
+                        growid: growid,
+                        registeredAt: new Date().toISOString(),
+                        lastActive: new Date().toISOString()
+                    });
+
+                    closeModal('auth-modal');
+                    document.getElementById('auth-form').reset();
+                    alert('Account created! Welcome to DAY-PS, ' + username + '!');
+                } catch (error) {
+                    alert('Sign up failed: ' + error.message);
+                }
+            }
+        }
+
+        // Admin Login Handler
+        async function handleAdminLogin(e) {
+            e.preventDefault();
+            const password = document.getElementById('admin-password').value;
+
+            if (password === 'Adm1n123') {
+                isAdmin = true;
+                showAdminControls();
+                closeModal('admin-login-modal');
+                document.getElementById('admin-password').value = '';
+                showPage('admin');
+                alert('Admin access granted');
+            } else {
+                alert('Incorrect password');
+            }
+        }
+
+        // New Chat System
+        function initNewChat() {
+            // Online users listener
+            db.ref('presence').on('value', (snapshot) => {
+                const count = snapshot.numChildren();
+                document.getElementById('online-count').textContent = '(' + count + ')';
+
+                const usersList = document.getElementById('online-users-list');
+                usersList.innerHTML = '';
+
+                snapshot.forEach((child) => {
+                    const uid = child.key;
+                    db.ref('users/' + uid + '/username').once('value', (userSnap) => {
+                        const username = userSnap.val() || 'Unknown';
+                        usersList.innerHTML += `
+                            <div class="online-user flex items-center gap-2 p-2 rounded bg-gray-800/50">
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                <span class="text-sm text-gray-300">${escapeHtml(username)}</span>
+                            </div>
+                        `;
+                    });
+                });
+            });
+
+            // Chat messages listener
+            db.ref('chat').orderByChild('timestamp').limitToLast(100).on('value', (snapshot) => {
+                const container = document.getElementById('new-chat-messages');
+                container.innerHTML = '';
+
+                const messages = [];
+                snapshot.forEach((child) => {
+                    messages.push(child.val());
+                });
+
+                messages.forEach((msg) => {
+                    const isMe = currentUser && msg.uid === currentUser.uid;
+                    const time = new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+                    container.innerHTML += `
+                        <div class="chat-msg ${isMe ? 'text-right' : ''}">
+                            <div class="inline-block max-w-[80%] ${isMe ? 'bg-cyan-600/20 border-cyan-600/50' : 'bg-gray-800 border-gray-700'} rounded-lg px-4 py-2 border">
+                                <div class="flex items-center gap-2 mb-1 ${isMe ? 'justify-end' : ''}">
+                                    <span class="text-xs font-bold ${isMe ? 'text-cyan-400' : 'text-gray-400'}">${escapeHtml(msg.username || 'Unknown')}</span>
+                                    <span class="text-xs text-gray-600">${time}</span>
+                                </div>
+                                <p class="text-sm text-gray-200 break-words">${escapeHtml(msg.text)}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.scrollTop = container.scrollHeight;
+            });
+        }
+
+        async function sendNewChatMessage() {
+            if (!currentUser || !userData) {
+                alert('Please sign in to chat');
+                openModal('auth-modal');
+                return;
+            }
+
+            const input = document.getElementById('new-chat-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            try {
+                await db.ref('chat').push({
+                    username: userData.username || 'Unknown',
+                    text: text,
+                    timestamp: Date.now(),
+                    uid: currentUser.uid
+                });
+                input.value = '';
+            } catch (error) {
+                alert('Failed to send message');
+            }
+        }
+
+        function updateChatUI() {
+            const statusEl = document.getElementById('chat-user-status');
+            const loginBtn = document.getElementById('chat-login-btn');
+            const inputArea = document.getElementById('new-chat-input-area');
+
+            if (currentUser && userData) {
+                statusEl.textContent = 'Chatting as: ' + (userData.username || 'User');
+                loginBtn.textContent = 'Switch Account';
+                inputArea.style.opacity = '1';
+                inputArea.style.pointerEvents = 'auto';
+            } else {
+                statusEl.textContent = 'Not logged in';
+                loginBtn.textContent = 'Sign In';
+                inputArea.style.opacity = '0.5';
+                inputArea.style.pointerEvents = 'none';
+            }
+        }
+
+        // Initialize new chat when on community page
+        if (document.getElementById('community').classList.contains('active')) {
+            initNewChat();
+        }
+
+        console.log('DAY-PS Loaded - Auth persistence enabled');
     </script>
 </body>
 </html>
